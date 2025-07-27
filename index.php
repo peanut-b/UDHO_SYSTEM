@@ -7,21 +7,109 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
+     /* Background Image Styles */
+    body {
+      background-image: url('assets/BG_LOGIN.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      
+    }
     .login-container {
-      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
     }
     .form-input:focus {
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
     }
+    .survey-btn {
+      transition: all 0.3s ease;
+    }
+    .survey-btn:hover {
+      transform: translateY(-2px);
+    }
+    .logo-box {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.0);
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Loader Styles */
+      .loader {
+      width: 50px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 8px solid lightblue;
+      border-right-color: orange;
+      animation: l2 1s infinite linear;
+    }
+    .loader:before,
+    .loader:after {
+      content: "";
+      width: 50%;
+      background: #514b82;
+      clip-path: polygon(0 0,100% 50%,0% 100%);
+      animation: inherit;
+      animation-name: l10-1;
+      transform-origin: bottom left;
+    }
+    .loader:before {
+      clip-path: polygon(0 50%,100% 0,100% 100%);
+      transform-origin: bottom right;
+      --s:-1;
+    }
+    @keyframes l10-0 {
+      0%,34.99% {transform: scaley(1)}
+      35%,70%   {transform: scaley(-1)}
+      90%,100%  {transform: scaley(-1) rotate(180deg)}
+    }
+    @keyframes l10-1 {
+      0%,10%,70%,100%{transform:translateY(-100%) rotate(calc(var(--s,1)*135deg))}
+      35%            {transform:translateY(0%)    rotate(0deg)}
+    }
+    @keyframes l2 {
+      to {
+        transform: rotate(1turn);
+      }
+    }
+
+      
+      /* Full page loader overlay */
+      .loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-  <div class="login-container rounded-2xl shadow-2xl overflow-hidden w-full max-w-md">
-    <div class="p-8 bg-white">
-      <div class="flex justify-center mb-6">
-        <img src="\UDHO%20SYSTEM\assets\UDHOLOGO.png" alt="UDHO Logo" class="h-16">
+  <!-- Page Loader -->
+  <div id="pageLoader" class="loader-overlay">
+    <div class="loader"></div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex w-full max-w-4xl bg-white rounded-xl shadow-xl overflow-hidden">
+    <!-- Logo Box on Left -->
+    <div class="w-1/2 p-8 flex items-center justify-center">
+      <div class="logo-box">
+        <img src="assets/bg_1.png" alt="UDHO Logo" class="h-100 w-100 object-cover">
       </div>
-      
+    </div>
+    
+    <!-- Login Form on Right -->
+    <div class="w-1/2 p-8">
       <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">Welcome Back</h2>
       <p class="text-gray-600 text-center mb-8">Please login to your account</p>
       
@@ -33,7 +121,7 @@
               <i class="fas fa-user text-gray-400"></i>
             </div>
             <input type="text" id="username" required
-                   class="pl-10 form-input block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-4 border">
+                   class="pl-10 form-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-4 border">
           </div>
         </div>
         
@@ -44,36 +132,40 @@
               <i class="fas fa-lock text-gray-400"></i>
             </div>
             <input type="password" id="password" required
-                   class="pl-10 form-input block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-4 border">
+                   class="pl-10 form-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-4 border">
           </div>
         </div>
         
         <div>
           <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
           <select id="role" required
-                  class="form-select block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-4 border">
+                  class="form-select block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-4 border">
             <option value="" disabled selected>Select your role</option>
-            <!-- Options will be populated by JavaScript -->
+            <option value="Admin">Admin</option>
+            <option value="Operation">Operation</option>
+            <option value="Admin Executive">Admin Executive</option>
+            <option value="HOA">HOA</option>
+            <option value="Enumerator">Enumerator</option>
           </select>
         </div>
         
         <div class="flex items-center justify-between">
           <div class="flex items-center">
             <input id="remember-me" name="remember-me" type="checkbox"
-                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                   class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
             <label for="remember-me" class="ml-2 block text-sm text-gray-700">Remember me</label>
           </div>
           <div class="text-sm">
-            <a href="#" class="font-medium text-blue-600 hover:text-blue-500">Forgot password?</a>
+            <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Forgot password?</a>
           </div>
         </div>
         
         <div>
           <button type="submit" id="loginButton"
-                  class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             <span id="buttonText">Sign in</span>
             <span id="spinner" class="ml-2 hidden">
-              <i class="fas fa-spinner fa-spin"></i>
+              <div class="loader" style="width: 20px; height: 20px;"></div>
             </span>
           </button>
         </div>
@@ -81,38 +173,18 @@
         <div id="errorMessage" class="hidden text-center text-sm text-red-600 mt-2"></div>
       </form>
     </div>
-    
-    <div class="px-8 py-4 bg-gray-50 text-center">
-      <p class="text-sm text-gray-600">
-        Don't have an account? 
-        <a href="#" class="font-medium text-blue-600 hover:text-blue-500">Contact admin</a>
-      </p>
-    </div>
   </div>
 
   <script>
-    // Fetch available roles when page loads
-    document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        const response = await fetch('http://localhost:3001/api/roles');
-        if (!response.ok) throw new Error('Failed to fetch roles');
-        
-        const roles = await response.json();
-        const roleSelect = document.getElementById('role');
-        
-        roles.forEach(role => {
-          const option = document.createElement('option');
-          option.value = role;
-          option.textContent = role;
-          roleSelect.appendChild(option);
-        });
-      } catch (error) {
-        showError('Failed to load roles. Please refresh the page.');
-      }
+    // Hide page loader when DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        document.getElementById('pageLoader').style.display = 'none';
+      }, 1000); // Simulate page loading time
     });
 
     // Handle login form submission
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
       
       const username = document.getElementById('username').value.trim();
@@ -135,57 +207,21 @@
       buttonText.textContent = 'Signing in...';
       spinner.classList.remove('hidden');
       
-      try {
-        const response = await fetch('http://localhost:3001/api/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ username, password, role })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-          // Store the token (use sessionStorage for more security if rememberMe is false)
-          const storage = rememberMe ? localStorage : sessionStorage;
-          storage.setItem('authToken', data.token);
-          storage.setItem('userData', JSON.stringify(data.user));
-          
-          // Redirect based on role
-          redirectUser(data.user.role);
-        } else {
-          showError(data.message || 'Login failed. Please try again.');
+      // Simulate API call with timeout
+      setTimeout(() => {
+        try {
+          // In a real application, this would be an API call to your backend
+          showError('Login functionality requires backend integration');
+        } catch (error) {
+          showError('Login error occurred');
+        } finally {
+          // Reset button state
+          loginButton.disabled = false;
+          buttonText.textContent = 'Sign in';
+          spinner.classList.add('hidden');
         }
-      } catch (error) {
-        showError('Error connecting to server. Please try again.');
-      } finally {
-        // Reset button state
-        loginButton.disabled = false;
-        buttonText.textContent = 'Sign in';
-        spinner.classList.add('hidden');
-      }
+      }, 1000);
     });
-
-    // Redirect user based on role
-    function redirectUser(role) {
-      switch(role) {
-        case 'Admin':
-          window.location.href = 'admin_dashboard.php';
-          break;
-        case 'Operation':
-          window.location.href = 'operation_dashboard.php';
-          break;
-        case 'Admin Executive':
-          window.location.href = 'adminexecutive_dashboard.php';
-          break;
-        case 'HOA':
-          window.location.href = 'hoa_dashboard.php';
-          break;
-        default:
-          window.location.href = 'dashboard.php';
-      }
-    }
 
     // Show error message
     function showError(message) {
@@ -198,23 +234,6 @@
         errorElement.classList.add('hidden');
       }, 5000);
     }
-
-    // Check if user is already logged in
-    function checkExistingLogin() {
-      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-      if (token) {
-        // Verify token and redirect if valid
-        // You would typically make an API call to verify the token
-        const userData = JSON.parse(localStorage.getItem('userData') || 
-                         JSON.parse(sessionStorage.getItem('userData')));
-        if (userData) {
-          redirectUser(userData.role);
-        }
-      }
-    }
-
-    // Check for existing login when page loads
-    checkExistingLogin();
   </script>
 </body>
 </html>

@@ -63,7 +63,7 @@
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/employee/employee.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="/UDHO%20SYSTEM/Admin%20executive/employee.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-users mr-3"></i> Employees
           </a>
         </li>

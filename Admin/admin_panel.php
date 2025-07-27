@@ -124,6 +124,86 @@
       border-radius: 0.5rem;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
+    .header-section {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .header-section h1 {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+    .header-section h2 {
+      font-size: 1rem;
+      font-weight: bold;
+    }
+    .header-section p {
+      font-size: 0.875rem;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 120px 1fr 80px 1fr;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .form-grid-2 {
+      grid-column: span 2;
+    }
+    .form-grid-4 {
+      grid-column: span 4;
+    }
+    .action-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+    .action-table th, .action-table td {
+      border: 1px solid #e2e8f0;
+      padding: 0.5rem;
+      text-align: center;
+    }
+    .action-table th {
+      background-color: #edf2f7;
+    }
+    .reminder-section {
+      font-size: 0.75rem;
+      margin-top: 1rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid #e2e8f0;
+    }
+    .control-number-container {
+      display: flex;
+      align-items: center;
+    }
+    .control-number-prefix {
+      margin-right: 0.5rem;
+      font-weight: 500;
+    }
+    .copy-type-options {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    .copy-type-option {
+      display: flex;
+      align-items: center;
+    }
+    /* Improved alignment for copy type section */
+    .copy-type-container {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .copy-type-label {
+      font-weight: bold;
+    }
+    .copy-type-inputs {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex">
@@ -137,13 +217,13 @@
     <nav class="mt-6">
       <ul>
         <li>
-          <a href="/UDHO%20SYSTEM/Operation/operation_dashboard.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="/UDHO%20SYSTEM/Operation/admin_panel.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
           </a>
         </li>
         <li>
-          <a href="#" class="sidebar-link flex items-center py-3 px-4 active-link bg-gray-700">
-            <i class="fas fa-file-alt mr-3"></i> Document Tracking
+          <a href="/UDHO%20SYSTEM/Admin/admin_records.php" class="sidebar-link flex items-center py-3 px-4 active-link bg-gray-700">
+            <i class="fas fa-file-alt mr-3"></i> Records
           </a>
         </li>
         <li>
@@ -170,545 +250,221 @@
       </div>
     </header>
 
-    <div class="flex flex-wrap gap-2 mb-6">
-      <button onclick="filterDocuments('all')" data-filter="all" class="filter-btn px-4 py-2 rounded-md bg-blue-500 text-white">
-        All Documents
-      </button>
-      <button onclick="filterDocuments('incoming')" data-filter="incoming" class="filter-btn px-4 py-2 rounded-md bg-gray-200 text-gray-700">
-        Incoming
-      </button>
-      <button onclick="filterDocuments('outgoing')" data-filter="outgoing" class="filter-btn px-4 py-2 rounded-md bg-gray-200 text-gray-700">
-        Outgoing
-      </button>
-    </div>
-
     <!-- Document Tracking Form -->
     <div class="document-form mb-6">
-      <h2 class="text-lg font-semibold mb-4">Document Information</h2>
-      <form class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="col-span-2 text-center">
-          <h3 class="font-bold">Republic of the Philippines</h3>
-          <h4 class="font-medium">Urban Development and Housing Office</h4>
-          <p class="text-sm">Pasay City, Metro Manila</p>
-        </div>
-        
-        <div class="col-span-2 border-t border-b py-2">
-          <div class="flex justify-between items-center">
-            <span class="font-medium">Control No.: <span id="controlNumber">UDHO2025-1042</span></span>
-            <button type="button" onclick="generateControlNumber()" class="text-blue-600 text-sm">
-              <i class="fas fa-sync-alt mr-1"></i> Generate New
-            </button>
-          </div>
-        </div>
-        
-        <div>
-          <label class="block mb-1 font-medium">Document Type</label>
-          <div class="flex flex-wrap gap-2">
-            <label class="inline-flex items-center">
-              <input type="radio" name="docType" value="Memo Letter" class="form-radio" checked> 
-              <span class="ml-2">Memo Letter</span>
-            </label>
-            <label class="inline-flex items-center">
-              <input type="radio" name="docType" value="Referral Request" class="form-radio"> 
-              <span class="ml-2">Referral Request</span>
-            </label>
-            <label class="inline-flex items-center">
-              <input type="radio" name="docType" value="Report Proposal" class="form-radio"> 
-              <span class="ml-2">Report Proposal</span>
-            </label>
-            <label class="inline-flex items-center">
-              <input type="radio" name="docType" value="Others" class="form-radio"> 
-              <span class="ml-2">Others: <input type="text" class="border-b ml-1 w-24"></span>
-            </label>
-          </div>
-        </div>
-        
-        <div>
-          <label class="block mb-1 font-medium">Direction</label>
-          <div class="flex gap-4">
-            <label class="inline-flex items-center">
-              <input type="radio" name="direction" value="Incoming" class="form-radio" checked> 
-              <span class="ml-2">Incoming</span>
-            </label>
-            <label class="inline-flex items-center">
-              <input type="radio" name="direction" value="Outgoing" class="form-radio"> 
-              <span class="ml-2">Outgoing</span>
-            </label>
-          </div>
-        </div>
-        
-        <div>
-          <label class="block mb-1 font-medium">Priority</label>
-          <div class="flex gap-2">
-            <label class="inline-flex items-center">
-              <input type="radio" name="priority" value="3 days" class="form-radio"> 
-              <span class="ml-2">3 days</span>
-            </label>
-            <label class="inline-flex items-center">
-              <input type="radio" name="priority" value="7 days" class="form-radio" checked> 
-              <span class="ml-2">7 days</span>
-            </label>
-            <label class="inline-flex items-center">
-              <input type="radio" name="priority" value="15 days" class="form-radio"> 
-              <span class="ml-2">15 days</span>
-            </label>
-            <label class="inline-flex items-center">
-              <input type="radio" name="priority" value="20 days" class="form-radio"> 
-              <span class="ml-2">20 days</span>
-            </label>
-          </div>
-        </div>
-        
-        <div>
-          <label class="block mb-1 font-medium">Type of Copy Sent</label>
-          <div class="flex gap-2">
-            <label class="inline-flex items-center">
-              <input type="radio" name="copyType" value="Original" class="form-radio" checked> 
-              <span class="ml-2">Original</span>
-            </label>
-            <label class="inline-flex items-center">
-              <input type="radio" name="copyType" value="Copy" class="form-radio"> 
-              <span class="ml-2">Copy</span>
-            </label>
-          </div>
-        </div>
-        
-        <div>
-          <label class="block mb-1 font-medium">Contact No.</label>
-          <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
-        </div>
-        
-        <div>
-          <label class="block mb-1 font-medium">Date/Time Received</label>
-          <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
-        </div>
-        
-        <div>
-          <label class="block mb-1 font-medium">Date/Time Released</label>
-          <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
-        </div>
-        
-        <div class="col-span-2">
-          <label class="block mb-1 font-medium">Subject/Description</label>
-          <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
-        </div>
-        
-        <div class="col-span-2">
-          <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition flex items-center justify-center">
-            <i class="fas fa-save mr-2"></i> Save Document
-          </button>
-        </div>
-      </form>
-    </div>
+      <div class="header-section">
+        <h1>ROUTING SLIP</h1>
+      </div>
 
-    <!-- Document Tracking Log -->
-    <div class="document-section">
-      <div class="document-header">
-        <div>
-          <i class="fas fa-file-alt mr-2"></i> Document Tracking Log
-          <span class="document-count">5 records</span>
+      <div class="form-grid">
+        <!-- Control Number Row -->
+        <div class="flex items-center">Control No:</div>
+        <div class="flex items-center">
+          <div class="control-number-container">
+            <span class="control-number-prefix">UDHO-2025-</span>
+            <input 
+              type="text" 
+              id="controlNumberSuffix" 
+              class="w-24 px-2 py-1 border border-gray-300 rounded-md"
+              placeholder="0001"
+              maxlength="4"
+              pattern="[0-9]{4}"
+              title="Please enter 4 digits"
+              oninput="validateControlNumber()"
+            >
+          </div>
         </div>
-        <div class="flex items-center space-x-2">
-          <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
-            <i class="fas fa-filter mr-1"></i> Filter
-          </button>
-          <button class="bg-purple-600 text-white px-3 py-1 rounded text-sm">
-            <i class="fas fa-print mr-1"></i> Print
-          </button>
+        
+        <!-- Direction Radio Buttons -->
+        <div class="flex items-center">
+          <input type="radio" id="incoming" name="direction" value="Incoming" checked>
+          <label for="incoming" class="ml-1">Incoming</label>
+        </div>
+        <div class="flex items-center">
+          <input type="radio" id="outgoing" name="direction" value="Outgoing">
+          <label for="outgoing" class="ml-1">Outgoing</label>
+        </div>
+
+        <!-- Document Type Row -->
+        <div class="flex items-center">Document Type</div>
+        <div class="flex items-center">
+          <input type="radio" id="memoLetter" name="docType" value="Memo Letter" checked>
+          <label for="memoLetter" class="ml-1">Memo Letter</label>
+        </div>
+        <div class="flex items-center">
+          <input type="radio" id="referralRequest" name="docType" value="Referral Request">
+          <label for="referralRequest" class="ml-1">Referral Request</label>
+        </div>
+        <div class="flex items-center">
+          <input type="radio" id="reportProposal" name="docType" value="Report Proposal">
+          <label for="reportProposal" class="ml-1">Report Proposal</label>
+        </div>
+
+        <!-- Document Type Continued -->
+        <div class="flex items-center"></div>
+        <div class="flex items-center">
+          <input type="radio" id="invitation" name="docType" value="Invitation">
+          <label for="invitation" class="ml-1">Invitation</label>
+        </div>
+        <div class="flex items-center">
+          <input type="radio" id="others" name="docType" value="Others">
+          <label for="others" class="ml-1">Others:</label>
+          <input type="text" class="ml-1 border-b w-20">
         </div>
       </div>
-      <div class="table-container overflow-x-auto">
-        <table class="document-table">
-          <thead>
-            <tr>
-              <th>Control No.</th>
-              <th>Date/Time</th>
-              <th>Document Type</th>
-              <th>Direction</th>
-              <th>Priority</th>
-              <th>Subject</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>UDHO2025-1042</td>
-              <td>2025-05-07 19:28</td>
-              <td>Memo Letter</td>
-              <td>Incoming</td>
-              <td><span class="priority-badge priority-medium">7 days</span></td>
-              <td>Request for housing assistance</td>
-              <td>Pending</td>
-              <td>
-                <button onclick="showDocumentDetails('UDHO2025-1042')" class="text-blue-600 hover:text-blue-800 mr-2">
-                  <i class="fas fa-eye"></i> View
-                </button>
-                <button class="text-green-600 hover:text-green-800">
-                  <i class="fas fa-edit"></i> Edit
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>UDHO2025-1041</td>
-              <td>2025-05-06 14:15</td>
-              <td>Report Proposal</td>
-              <td>Outgoing</td>
-              <td><span class="priority-badge priority-low">15 days</span></td>
-              <td>Quarterly housing report</td>
-              <td>Completed</td>
-              <td>
-                <button onclick="showDocumentDetails('UDHO2025-1041')" class="text-blue-600 hover:text-blue-800 mr-2">
-                  <i class="fas fa-eye"></i> View
-                </button>
-                <button class="text-green-600 hover:text-green-800">
-                  <i class="fas fa-edit"></i> Edit
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>UDHO2025-1040</td>
-              <td>2025-05-05 10:30</td>
-              <td>Referral Request</td>
-              <td>Incoming</td>
-              <td><span class="priority-badge priority-high">3 days</span></td>
-              <td>Urgent housing relocation</td>
-              <td>In Progress</td>
-              <td>
-                <button onclick="showDocumentDetails('UDHO2025-1040')" class="text-blue-600 hover:text-blue-800 mr-2">
-                  <i class="fas fa-eye"></i> View
-                </button>
-                <button class="text-green-600 hover:text-green-800">
-                  <i class="fas fa-edit"></i> Edit
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>UDHO2025-1039</td>
-              <td>2025-05-04 16:45</td>
-              <td>Memo Letter</td>
-              <td>Outgoing</td>
-              <td><span class="priority-badge priority-medium">7 days</span></td>
-              <td>Notice of assessment</td>
-              <td>Completed</td>
-              <td>
-                <button onclick="showDocumentDetails('UDHO2025-1039')" class="text-blue-600 hover:text-blue-800 mr-2">
-                  <i class="fas fa-eye"></i> View
-                </button>
-                <button class="text-green-600 hover:text-green-800">
-                  <i class="fas fa-edit"></i> Edit
-                </button>
-              </td>
-            </tr>
-            <tr>
-              <td>UDHO2025-1038</td>
-              <td>2025-05-03 09:20</td>
-              <td>Others: Invitation</td>
-              <td>Incoming</td>
-              <td><span class="priority-badge priority-low">20 days</span></td>
-              <td>Community meeting invitation</td>
-              <td>Pending</td>
-              <td>
-                <button onclick="showDocumentDetails('UDHO2025-1038')" class="text-blue-600 hover:text-blue-800 mr-2">
-                  <i class="fas fa-eye"></i> View
-                </button>
-                <button class="text-green-600 hover:text-green-800">
-                  <i class="fas fa-edit"></i> Edit
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
 
-    <!-- Document Details Panel (hidden by default) -->
-    <div class="backdrop" id="docBackdrop" onclick="closeDocumentDetails()"></div>
-    <div class="document-details-panel" id="documentDetailsPanel">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold">Document Details</h2>
-        <button onclick="closeDocumentDetails()" class="text-gray-500 hover:text-gray-700">
-          <i class="fas fa-times"></i>
+      <!-- Improved Copy Type Section -->
+      <div class="copy-type-container">
+        <div class="copy-type-label">Type of Copy Sent:</div>
+        <div class="copy-type-inputs">
+          <label class="copy-type-option">
+            <input type="radio" name="copyType" value="Original" class="form-radio" checked>
+            <span class="ml-2">Original</span>
+          </label>
+          <label class="copy-type-option">
+            <input type="radio" name="copyType" value="Photocopy" class="form-radio">
+            <span class="ml-2">Photocopy</span>
+          </label>
+          <label class="copy-type-option">
+            <input type="radio" name="copyType" value="Scanned" class="form-radio">
+            <span class="ml-2">Scanned</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <!-- Priority Row -->
+        <div class="flex items-center">Priority</div>
+        <div class="flex items-center">
+          <input type="radio" id="priority3" name="priority" value="3 days">
+          <label for="priority3" class="ml-1">3 days</label>
+        </div>
+        <div class="flex items-center">
+          <input type="radio" id="priority7" name="priority" value="7 days" checked>
+          <label for="priority7" class="ml-1">7 days</label>
+        </div>
+        <div class="flex items-center">
+          <input type="radio" id="priority15" name="priority" value="15 days">
+          <label for="priority15" class="ml-1">15 days</label>
+        </div>
+
+        <!-- Priority Continued -->
+        <div class="flex items-center"></div>
+        <div class="flex items-center">
+          <input type="radio" id="priority20" name="priority" value="20 days">
+          <label for="priority20" class="ml-1">20 days</label>
+        </div>
+        
+        <!-- Sender Information -->
+        <div class="flex items-center font-bold">Sender</div>
+        <div class="form-grid-2">
+          <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+        </div>
+        <div class="flex items-center font-bold">Date/Time</div>
+        <div class="flex items-center">
+          <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+        </div>
+
+        <!-- Contact Number -->
+        <div class="flex items-center font-bold">Contact No</div>
+        <div class="form-grid-4">
+          <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+        </div>
+      </div>
+
+      <!-- Subject Section -->
+      <div class="border-t border-b py-2 my-4">
+        <h3 class="text-lg font-bold text-center">Subject</h3>
+      </div>
+
+      <!-- Action Table -->
+      <table class="action-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Required Actions/ Instructions</th>
+            <th>Due Date</th>
+            <th>Action Taken</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="date" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="date" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+          </tr>
+          <tr>
+            <td><input type="date" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="date" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+          </tr>
+          <tr>
+            <td><input type="date" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="date" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+          </tr>
+          <tr>
+            <td><input type="date" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="date" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+          </tr>
+          <tr>
+            <td><input type="date" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+            <td><input type="date" class="w-full border-none"></td>
+            <td><input type="text" class="w-full border-none"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Reminder Section -->
+      <div class="reminder-section">
+        <p><strong>Reminders:</strong> Under Sec. 5 of RA 6713, otherwise known as the <em>Code of Conduct and Ethical Standards for Public Officials and Employees</em>, enjoins all public servants to respond to letters, telegrams, and other means of communication sent by the public within fifteen (15) working days from the receipt thereof. The reply must contain the action taken on the request. Likewise, all official papers and documents must be processed and completed within a reasonable time.</p>
+      </div>
+
+      <!-- Save Button -->
+      <div class="flex justify-end mt-4">
+        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition">
+          <i class="fas fa-save mr-2"></i> Save Document
         </button>
-      </div>
-      
-      <div class="mb-6">
-        <div class="bg-gray-50 p-4 rounded">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <p class="text-sm text-gray-500">Control Number</p>
-              <p class="font-medium" id="docControlNo">-</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Document Type</p>
-              <p class="font-medium" id="docType">-</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Direction</p>
-              <p class="font-medium" id="docDirection">-</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Priority</p>
-              <p class="font-medium" id="docPriority">-</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Date/Time Received</p>
-              <p class="font-medium" id="docReceived">-</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Date/Time Released</p>
-              <p class="font-medium" id="docReleased">-</p>
-            </div>
-            <div class="col-span-2">
-              <p class="text-sm text-gray-500">Subject</p>
-              <p class="font-medium" id="docSubject">-</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold mb-2">Action Log</h3>
-        <div class="table-container overflow-x-auto">
-          <table class="document-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Required Actions</th>
-                <th>Due Date</th>
-                <th>Action Taken</th>
-              </tr>
-            </thead>
-            <tbody id="actionLogTable">
-              <!-- Will be populated by JavaScript -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-      
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Add New Action</h3>
-        <form id="addActionForm" class="space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block mb-1 font-medium">Date</label>
-              <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
-            </div>
-            <div>
-              <label class="block mb-1 font-medium">From</label>
-              <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
-            </div>
-            <div>
-              <label class="block mb-1 font-medium">To</label>
-              <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
-            </div>
-            <div>
-              <label class="block mb-1 font-medium">Due Date</label>
-              <input type="date" class="w-full px-3 py-2 border border-gray-300 rounded-md" required>
-            </div>
-            <div class="col-span-2">
-              <label class="block mb-1 font-medium">Required Actions/Instructions</label>
-              <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md" required></textarea>
-            </div>
-            <div class="col-span-2">
-              <label class="block mb-1 font-medium">Action Taken</label>
-              <textarea rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md" required></textarea>
-            </div>
-          </div>
-          <div class="flex justify-end">
-            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition">
-              Add Action
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   </div>
 
+ 
+
   <script>
-    // Sample data for documents
-    const documentData = {
-      'UDHO2025-1042': {
-        controlNo: 'UDHO2025-1042',
-        docType: 'Memo Letter',
-        direction: 'Incoming',
-        priority: '7 days',
-        received: '2025-05-07 19:28',
-        released: '',
-        subject: 'Request for housing assistance',
-        status: 'Pending',
-        actions: [
-          {
-            date: '2025-05-07',
-            from: 'City Housing Office',
-            to: 'UDHO Director',
-            requiredAction: 'Review and approve housing assistance request',
-            dueDate: '2025-05-14',
-            actionTaken: 'Received and logged'
-          }
-        ]
-      },
-      'UDHO2025-1041': {
-        controlNo: 'UDHO2025-1041',
-        docType: 'Report Proposal',
-        direction: 'Outgoing',
-        priority: '15 days',
-        received: '',
-        released: '2025-05-06 14:15',
-        subject: 'Quarterly housing report',
-        status: 'Completed',
-        actions: [
-          {
-            date: '2025-05-01',
-            from: 'UDHO Director',
-            to: 'Planning Department',
-            requiredAction: 'Prepare quarterly housing report',
-            dueDate: '2025-05-15',
-            actionTaken: 'Report prepared and submitted'
-          },
-          {
-            date: '2025-05-06',
-            from: 'Planning Department',
-            to: 'City Council',
-            requiredAction: 'Submit final report',
-            dueDate: '2025-05-06',
-            actionTaken: 'Report delivered'
-          }
-        ]
-      },
-      'UDHO2025-1040': {
-        controlNo: 'UDHO2025-1040',
-        docType: 'Referral Request',
-        direction: 'Incoming',
-        priority: '3 days',
-        received: '2025-05-05 10:30',
-        released: '',
-        subject: 'Urgent housing relocation',
-        status: 'In Progress',
-        actions: [
-          {
-            date: '2025-05-05',
-            from: 'Barangay 12 Office',
-            to: 'UDHO Relocation Team',
-            requiredAction: 'Process urgent relocation request',
-            dueDate: '2025-05-08',
-            actionTaken: 'Request received and assigned'
-          }
-        ]
-      }
-    };
+    function validateControlNumber() {
+      const input = document.getElementById('controlNumberSuffix');
+      // Only allow numbers and enforce 4-digit length
+      input.value = input.value.replace(/[^0-9]/g, '').slice(0, 4);
+    }
 
+    // Show document details
     function showDocumentDetails(controlNo) {
-      const doc = documentData[controlNo] || {
-        controlNo: controlNo,
-        docType: 'Unknown',
-        direction: 'Unknown',
-        priority: 'Unknown',
-        received: 'Unknown',
-        released: 'Unknown',
-        subject: 'Unknown',
-        status: 'Unknown',
-        actions: []
-      };
-
-      // Update basic info
-      document.getElementById('docControlNo').textContent = doc.controlNo;
-      document.getElementById('docType').textContent = doc.docType;
-      document.getElementById('docDirection').textContent = doc.direction;
-      document.getElementById('docPriority').textContent = doc.priority;
-      document.getElementById('docReceived').textContent = doc.received || 'N/A';
-      document.getElementById('docReleased').textContent = doc.released || 'N/A';
-      document.getElementById('docSubject').textContent = doc.subject;
-
-      // Update action log
-      updateActionLogTable(doc.actions);
-
-      // Show panel and backdrop
-      document.getElementById('documentDetailsPanel').style.display = 'block';
-      document.getElementById('docBackdrop').style.display = 'block';
+      alert(`Showing details for document: ${controlNo}`);
+      // In a real implementation, this would open a modal with document details
     }
 
-    function updateActionLogTable(actions) {
-      const actionTable = document.getElementById('actionLogTable');
-      actionTable.innerHTML = '';
-      
-      if (actions.length === 0) {
-        actionTable.innerHTML = `
-          <tr>
-            <td colspan="6" class="text-center py-4 text-gray-500">
-              No actions logged
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      actions.forEach(action => {
-        actionTable.innerHTML += `
-          <tr>
-            <td>${action.date}</td>
-            <td>${action.from}</td>
-            <td>${action.to}</td>
-            <td>${action.requiredAction}</td>
-            <td>${action.dueDate}</td>
-            <td>${action.actionTaken}</td>
-          </tr>
-        `;
-      });
-    }
-
-    function closeDocumentDetails() {
-      document.getElementById('documentDetailsPanel').style.display = 'none';
-      document.getElementById('docBackdrop').style.display = 'none';
-    }
-
-    function generateControlNumber() {
-      const year = new Date().getFullYear();
-      const randomNum = Math.floor(1000 + Math.random() * 9000);
-      document.getElementById('controlNumber').textContent = `UDHO${year}-${randomNum}`;
-    }
-
-    function filterDocuments(filter) {
-      const rows = document.querySelectorAll('.document-table tbody tr');
-      const filterButtons = document.querySelectorAll('.filter-btn');
-      
-      // Update button styles
-      filterButtons.forEach(btn => {
-        if (btn.dataset.filter === filter) {
-          btn.classList.remove('bg-gray-200', 'text-gray-700');
-          btn.classList.add('bg-blue-500', 'text-white');
-        } else {
-          btn.classList.remove('bg-blue-500', 'text-white');
-          btn.classList.add('bg-gray-200', 'text-gray-700');
-        }
-      });
-      
-      // Filter rows
-      rows.forEach(row => {
-        const direction = row.querySelector('td:nth-child(4)').textContent;
-        if (filter === 'all' || direction.toLowerCase() === filter.toLowerCase()) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
-      });
-    }
-
-    // Close panel when clicking outside
-    document.addEventListener('click', function(event) {
-      const panel = document.getElementById('documentDetailsPanel');
-      const backdrop = document.getElementById('docBackdrop');
-      if (event.target === backdrop) {
-        panel.style.display = 'none';
-        backdrop.style.display = 'none';
-      }
-    });
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
-      generateControlNumber();
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+      // No need for auto-generation now
     });
   </script>
 </body>
