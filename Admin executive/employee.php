@@ -25,6 +25,10 @@
     .active-link {
       background-color: rgba(255, 255, 255, 0.2);
     }
+    .time-period-btn.active {
+      background-color: #3b82f6;
+      color: white;
+    }
     .badge {
       display: inline-block;
       padding: 0.25em 0.4em;
@@ -73,12 +77,12 @@
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/Backup_data/backup.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="/UDHO%20SYSTEM/Admin%20executive/backup.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-database mr-3"></i> Backup Data
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/employee/employee.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="/UDHO%20SYSTEM/Admin%20executive/employee.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-users mr-3"></i> Employees
           </a>
         </li>
@@ -285,9 +289,7 @@
                 <button onclick="editEmployee('EMP-004')" class="text-yellow-600 hover:text-yellow-900" title="Edit">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button onclick="showRequestMessage('EMP-004', 'Ana Lopez', 'I forgot my password and need to reset it. Please help.')" class="text-blue-600 hover:text-blue-900" title="View Message">
-                  <i class="fas fa-envelope"></i>
-                </button>
+                
                 <button onclick="resetPassword('EMP-004')" class="text-blue-600 hover:text-blue-900" title="Reset Password">
                   <i class="fas fa-key"></i>
                 </button>
@@ -328,7 +330,7 @@
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Request Date</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
+              
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -337,13 +339,9 @@
                 <td class="px-6 py-4 whitespace-nowrap">Ana Lopez</td>
                 <td class="px-6 py-4 whitespace-nowrap">Administration</td>
                 <td class="px-6 py-4 whitespace-nowrap">Today, 9:15 AM</td>
-                <td class="px-6 py-4">
-                  <div class="message-preview">I forgot my password and need to reset it. Please help.</div>
-                </td>
+                
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <button onclick="showFullMessage('Ana Lopez', 'I forgot my password and need to reset it. Please help.')" class="text-blue-600 hover:text-blue-900 mr-2" title="View Message">
-                    <i class="fas fa-envelope"></i>
-                  </button>
+                  
                   <button onclick="resetPassword('EMP-004')" class="text-blue-600 hover:text-blue-900 mr-2" title="Reset Password">
                     <i class="fas fa-key"></i>
                   </button>
@@ -356,13 +354,9 @@
                 <td class="px-6 py-4 whitespace-nowrap">Carlos Garcia</td>
                 <td class="px-6 py-4 whitespace-nowrap">Operations</td>
                 <td class="px-6 py-4 whitespace-nowrap">Yesterday, 4:30 PM</td>
-                <td class="px-6 py-4">
-                  <div class="message-preview">I suspect someone has accessed my account. I need to reset my password immediately.</div>
-                </td>
+                
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <button onclick="showFullMessage('Carlos Garcia', 'I suspect someone has accessed my account. I need to reset my password immediately.')" class="text-blue-600 hover:text-blue-900 mr-2" title="View Message">
-                    <i class="fas fa-envelope"></i>
-                  </button>
+                 
                   <button onclick="resetPassword('EMP-005')" class="text-blue-600 hover:text-blue-900 mr-2" title="Reset Password">
                     <i class="fas fa-key"></i>
                   </button>

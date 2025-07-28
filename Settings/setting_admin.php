@@ -49,13 +49,6 @@
     .sidebar-link:hover {
       background-color: rgba(255, 255, 255, 0.1);
     }
-    .active-link {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
-    .time-period-btn.active {
-      background-color: #3b82f6;
-      color: white;
-    }
   </style>
 </head>
 
@@ -83,7 +76,7 @@
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/Admin%20executive/backup.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="/UDHO%20SYSTEM/Backup_data/backup.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-database mr-3"></i> Backup Data
           </a>
         </li>
@@ -93,7 +86,7 @@
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/Settings/setting_executive.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="/UDHO%20SYSTEM/Settings/setting.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-cog mr-3"></i> Settings
           </a>
         </li>

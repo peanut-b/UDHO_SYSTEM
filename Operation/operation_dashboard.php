@@ -47,7 +47,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="\UDHO%20SYSTEM\Settings\setting.php" class="block py-2.5 px-4 hover:bg-gray-700 flex items-center">
+                    <a href="\UDHO%20SYSTEM\Settings\setting_operation.php" class="block py-2.5 px-4 hover:bg-gray-700 flex items-center">
                         <i class="fas fa-cog mr-3"></i> Settings
                     </a>
                 </li>

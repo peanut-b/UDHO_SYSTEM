@@ -204,6 +204,25 @@
       gap: 1rem;
       align-items: center;
     }
+    .icon-style {
+      font-size: 2.2rem;
+      color: #111827;
+    }
+    .sidebar-link {
+      transition: all 0.2s ease;
+    }
+    .sidebar-link:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .active-link {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    .time-period-btn.active {
+      background-color: #3b82f6;
+      color: white;
+    }
+    
+    
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex">
@@ -217,13 +236,13 @@
     <nav class="mt-6">
       <ul>
         <li>
-          <a href="/UDHO%20SYSTEM/Operation/admin_panel.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="/UDHO%20SYSTEM/Admin/admin_dashboard.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
           </a>
         </li>
         <li>
-          <a href="#" class="sidebar-link flex items-center py-3 px-4 active-link bg-gray-700">
-            <i class="fas fa-file-alt mr-3"></i> Document Tracking
+          <a href="/UDHO%20SYSTEM/Admin/admin_records.php" class="sidebar-link flex items-center py-3 px-4 active-link bg-gray-700">
+            <i class="fas fa-file-alt mr-3"></i> Routing Slip
           </a>
         </li>
         <li>
@@ -236,46 +255,10 @@
             <i class="fas fa-sign-out-alt mr-3"></i> Logout
           </a>
         </li>
-      </ul>
     </nav>
   </div>
 
   <!-- Main Content -->
-  
-
-  <!-- Separate Document Tracking Log File (would normally be in a separate HTML file) -->
-  <div class="w-64 bg-gray-800 text-white flex flex-col">
-    <div class="flex items-center justify-center h-24">
-      <div class="rounded-full bg-gray-200 w-20 h-20 flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
-        <img src="/UDHO%20SYSTEM/assets/PROFILE_SAMPLE.jpg" alt="Profile Picture" class="w-full h-full object-cover">
-      </div>
-    </div>
-    <nav class="mt-6">
-      <ul>
-        <li>
-          <a href="/UDHO%20SYSTEM/Operation/admin_panel.php" class="sidebar-link flex items-center py-3 px-4">
-            <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
-          </a>
-        </li>
-        <li>
-          <a href="#" class="sidebar-link flex items-center py-3 px-4 active-link bg-gray-700">
-            <i class="fas fa-file-alt mr-3"></i> Document Tracking
-          </a>
-        </li>
-        <li>
-          <a href="/UDHO%20SYSTEM/Settings/setting.php" class="sidebar-link flex items-center py-3 px-4">
-            <i class="fas fa-cog mr-3"></i> Settings
-          </a>
-        </li>
-        <li>
-          <a href="#" class="sidebar-link flex items-center py-3 px-4 mt-10">
-            <i class="fas fa-sign-out-alt mr-3"></i> Logout
-          </a>
-        </li>
-      </ul>
-    </nav>
-  </div>
-
   <div class="flex-1 p-4 md:p-10">
     <!-- Document Tracking Log -->
     <div class="document-section">

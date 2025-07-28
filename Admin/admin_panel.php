@@ -141,10 +141,10 @@
     }
     .form-grid {
       display: grid;
-      grid-template-columns: 120px 1fr 80px 1fr;
-      gap: 0.5rem;
+      grid-template-columns: 120px 1fr;
+      gap: 0.75rem;
       align-items: center;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
     }
     .form-grid-2 {
       grid-column: span 2;
@@ -188,7 +188,6 @@
       display: flex;
       align-items: center;
     }
-    /* Improved alignment for copy type section */
     .copy-type-container {
       display: grid;
       grid-template-columns: 120px 1fr;
@@ -204,6 +203,106 @@
       gap: 1rem;
       align-items: center;
     }
+    .nav-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .nav-button {
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.375rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-button.active {
+      background-color: #4c51bf;
+      color: white;
+    }
+    .nav-button.inactive {
+      background-color: #edf2f7;
+      color: #4a5568;
+    }
+    .nav-button.inactive:hover {
+      background-color: #e2e8f0;
+    }
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+    }
+    .form-checkbox {
+      width: 1rem;
+      height: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.25rem;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      margin-right: 0.5rem;
+    }
+    .form-checkbox:checked {
+      background-color: #4c51bf;
+      background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .form-radio {
+      width: 1rem;
+      height: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 9999px;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      margin-right: 0.5rem;
+    }
+    .form-radio:checked {
+      background-color: #4c51bf;
+      background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: #2d3748;
+    }
+    .other-input {
+      margin-left: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.25rem;
+      width: 150px;
+    }
+    .other-input:focus {
+      outline: none;
+      border-color: #4c51bf;
+    }
+    .icon-style {
+      font-size: 2.2rem;
+      color: #111827;
+    }
+    
+    
+    @media (max-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .form-grid-2, .form-grid-4 {
+        grid-column: span 1 !important;
+      }
+      .checkbox-group {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex">
@@ -217,13 +316,13 @@
     <nav class="mt-6">
       <ul>
         <li>
-          <a href="/UDHO%20SYSTEM/Operation/admin_panel.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="/UDHO%20SYSTEM/Admin/admin_dashboard.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
           </a>
         </li>
         <li>
           <a href="/UDHO%20SYSTEM/Admin/admin_records.php" class="sidebar-link flex items-center py-3 px-4 active-link bg-gray-700">
-            <i class="fas fa-file-alt mr-3"></i> Records
+            <i class="fas fa-file-alt mr-3"></i> Routing Slip
           </a>
         </li>
         <li>
@@ -250,204 +349,346 @@
       </div>
     </header>
 
-    <!-- Document Tracking Form -->
-    <div class="document-form mb-6">
-      <div class="header-section">
-        <h1>ROUTING SLIP</h1>
-      </div>
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+      <button id="routingSlipBtn" class="nav-button active">
+        <i class="fas fa-file-alt"></i> Routing Slip
+      </button>
+    </div>
 
-      <div class="form-grid">
-        <!-- Control Number Row -->
-        <div class="flex items-center">Control No:</div>
-        <div class="flex items-center">
-          <div class="control-number-container">
-            <span class="control-number-prefix">UDHO-2025-</span>
-            <input 
-              type="text" 
-              id="controlNumberSuffix" 
-              class="w-24 px-2 py-1 border border-gray-300 rounded-md"
-              placeholder="0001"
-              maxlength="4"
-              pattern="[0-9]{4}"
-              title="Please enter 4 digits"
-              oninput="validateControlNumber()"
-            >
+    <!-- Routing Slip Section (Visible by default) -->
+    <div id="routingSlipSection">
+      <!-- Document Tracking Form -->
+      <div class="document-form mb-6">
+        <div class="header-section">
+          <h1>ROUTING SLIP</h1>
+        </div>
+
+        <div class="form-grid">
+          <!-- Control Number -->
+          <div class="flex items-center font-medium">Control No:</div>
+          <div class="flex items-center">
+            <div class="control-number-container">
+              <span class="control-number-prefix">UDHO-2025-</span>
+              <input 
+                type="text" 
+                id="controlNumberSuffix" 
+                class="w-24 px-2 py-1 border border-gray-300 rounded-md"
+                placeholder="0001"
+                maxlength="4"
+                pattern="[0-9]{4}"
+                title="Please enter 4 digits"
+                oninput="validateControlNumber()"
+              >
+            </div>
           </div>
         </div>
-        
-        <!-- Direction Radio Buttons -->
-        <div class="flex items-center">
-          <input type="radio" id="incoming" name="direction" value="Incoming" checked>
-          <label for="incoming" class="ml-1">Incoming</label>
-        </div>
-        <div class="flex items-center">
-          <input type="radio" id="outgoing" name="direction" value="Outgoing">
-          <label for="outgoing" class="ml-1">Outgoing</label>
+
+        <!-- Direction Section -->
+        <div class="mb-4">
+          <div class="section-title">Direction</div>
+          <div class="flex space-x-4">
+            <label class="flex items-center">
+              <input type="radio" name="direction" value="Incoming" class="form-radio" checked>
+              <span class="ml-2">Incoming</span>
+            </label>
+            <label class="flex items-center">
+              <input type="radio" name="direction" value="Outgoing" class="form-radio">
+              <span class="ml-2">Outgoing</span>
+            </label>
+          </div>
         </div>
 
-        <!-- Document Type Row -->
-        <div class="flex items-center">Document Type</div>
-        <div class="flex items-center">
-          <input type="radio" id="memoLetter" name="docType" value="Memo Letter" checked>
-          <label for="memoLetter" class="ml-1">Memo Letter</label>
-        </div>
-        <div class="flex items-center">
-          <input type="radio" id="referralRequest" name="docType" value="Referral Request">
-          <label for="referralRequest" class="ml-1">Referral Request</label>
-        </div>
-        <div class="flex items-center">
-          <input type="radio" id="reportProposal" name="docType" value="Report Proposal">
-          <label for="reportProposal" class="ml-1">Report Proposal</label>
-        </div>
-
-        <!-- Document Type Continued -->
-        <div class="flex items-center"></div>
-        <div class="flex items-center">
-          <input type="radio" id="invitation" name="docType" value="Invitation">
-          <label for="invitation" class="ml-1">Invitation</label>
-        </div>
-        <div class="flex items-center">
-          <input type="radio" id="others" name="docType" value="Others">
-          <label for="others" class="ml-1">Others:</label>
-          <input type="text" class="ml-1 border-b w-20">
-        </div>
-      </div>
-
-      <!-- Improved Copy Type Section -->
-      <div class="copy-type-container">
-        <div class="copy-type-label">Type of Copy Sent:</div>
-        <div class="copy-type-inputs">
-          <label class="copy-type-option">
-            <input type="radio" name="copyType" value="Original" class="form-radio" checked>
-            <span class="ml-2">Original</span>
-          </label>
-          <label class="copy-type-option">
-            <input type="radio" name="copyType" value="Photocopy" class="form-radio">
-            <span class="ml-2">Photocopy</span>
-          </label>
-          <label class="copy-type-option">
-            <input type="radio" name="copyType" value="Scanned" class="form-radio">
-            <span class="ml-2">Scanned</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="form-grid">
-        <!-- Priority Row -->
-        <div class="flex items-center">Priority</div>
-        <div class="flex items-center">
-          <input type="radio" id="priority3" name="priority" value="3 days">
-          <label for="priority3" class="ml-1">3 days</label>
-        </div>
-        <div class="flex items-center">
-          <input type="radio" id="priority7" name="priority" value="7 days" checked>
-          <label for="priority7" class="ml-1">7 days</label>
-        </div>
-        <div class="flex items-center">
-          <input type="radio" id="priority15" name="priority" value="15 days">
-          <label for="priority15" class="ml-1">15 days</label>
+        <!-- Document Type Section -->
+        <div class="mb-4">
+          <div class="section-title">Document Type (Check all that apply)</div>
+          <div class="checkbox-group">
+            <label class="checkbox-option">
+              <input type="checkbox" name="docType" value="Memo Letter" class="form-checkbox" checked>
+              <span class="ml-2">Memo Letter</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="docType" value="Referral Request" class="form-checkbox">
+              <span class="ml-2">Referral Request</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="docType" value="Report Proposal" class="form-checkbox">
+              <span class="ml-2">Report Proposal</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="docType" value="Invitation" class="form-checkbox">
+              <span class="ml-2">Invitation</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="docType" value="Others" class="form-checkbox">
+              <span class="ml-2">Others:</span>
+              <input type="text" class="other-input" placeholder="Specify">
+            </label>
+          </div>
         </div>
 
-        <!-- Priority Continued -->
-        <div class="flex items-center"></div>
-        <div class="flex items-center">
-          <input type="radio" id="priority20" name="priority" value="20 days">
-          <label for="priority20" class="ml-1">20 days</label>
+        <!-- Copy Type Section -->
+        <div class="mb-4">
+          <div class="section-title">Type of Copy Sent</div>
+          <div class="flex space-x-4">
+            <label class="flex items-center">
+              <input type="radio" name="copyType" value="Original" class="form-radio" checked>
+              <span class="ml-2">Original</span>
+            </label>
+            <label class="flex items-center">
+              <input type="radio" name="copyType" value="Photocopy" class="form-radio">
+              <span class="ml-2">Photocopy</span>
+            </label>
+            <label class="flex items-center">
+              <input type="radio" name="copyType" value="Scanned" class="form-radio">
+              <span class="ml-2">Scanned</span>
+            </label>
+          </div>
         </div>
-        
+
+        <!-- Priority Section -->
+        <div class="mb-4">
+          <div class="section-title">Priority (Check all that apply)</div>
+          <div class="checkbox-group">
+            <label class="checkbox-option">
+              <input type="checkbox" name="priority" value="3 days" class="form-checkbox">
+              <span class="ml-2">3 days</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="priority" value="7 days" class="form-checkbox">
+              <span class="ml-2">7 days</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="priority" value="15 days" class="form-checkbox">
+              <span class="ml-2">15 days</span>
+            </label>
+            <label class="checkbox-option">
+              <input type="checkbox" name="priority" value="20 days" class="form-checkbox">
+              <span class="ml-2">20 days</span>
+            </label>
+          </div>
+        </div>
+
         <!-- Sender Information -->
-        <div class="flex items-center font-bold">Sender</div>
-        <div class="form-grid-2">
-          <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-        </div>
-        <div class="flex items-center font-bold">Date/Time</div>
-        <div class="flex items-center">
-          <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+        <div class="form-grid">
+          <div class="flex items-center font-medium">Sender</div>
+          <div>
+            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Sender Name">
+          </div>
+
+          <div class="flex items-center font-medium">Date/Time</div>
+          <div>
+            <input type="datetime-local" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+          </div>
+
+          <div class="flex items-center font-medium">Contact No</div>
+          <div>
+            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="Contact number">
+          </div>
         </div>
 
-        <!-- Contact Number -->
-        <div class="flex items-center font-bold">Contact No</div>
-        <div class="form-grid-4">
-          <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+        <!-- Subject Section -->
+        <div class="mt-4 mb-4">
+          <div class="section-title">Subject</div>
+          <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="4" placeholder="Enter subject details"></textarea>
+        </div>
+
+        <!-- Action Table -->
+        <div class="mb-4">
+          <div class="section-title">Document Routing</div>
+          <table class="action-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Required Actions/ Instructions</th>
+                <th>Due Date</th>
+                <th>Action Taken</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="date" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="date" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+              </tr>
+              <tr>
+                <td><input type="date" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="date" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+              </tr>
+              <tr>
+                <td><input type="date" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="date" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+              </tr>
+              <tr>
+                <td><input type="date" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="date" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+              </tr>
+              <tr>
+                <td><input type="date" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+                <td><input type="date" class="w-full border-none"></td>
+                <td><input type="text" class="w-full border-none"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Reminder Section -->
+        <div class="reminder-section">
+          <p><strong>Reminders:</strong> Under Sec. 5 of RA 6713, otherwise known as the <em>Code of Conduct and Ethical Standards for Public Officials and Employees</em>, enjoins all public servants to respond to letters, telegrams, and other means of communication sent by the public within fifteen (15) working days from the receipt thereof. The reply must contain the action taken on the request. Likewise, all official papers and documents must be processed and completed within a reasonable time.</p>
+        </div>
+
+        <!-- Save Button -->
+        <div class="flex justify-end mt-4">
+          <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition">
+            <i class="fas fa-save mr-2"></i> Save Document
+          </button>
         </div>
       </div>
+    </div>
 
-      <!-- Subject Section -->
-      <div class="border-t border-b py-2 my-4">
-        <h3 class="text-lg font-bold text-center">Subject</h3>
-      </div>
-
-      <!-- Action Table -->
-      <table class="action-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>From</th>
-            <th>To</th>
-            <th>Required Actions/ Instructions</th>
-            <th>Due Date</th>
-            <th>Action Taken</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><input type="date" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="date" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-          </tr>
-          <tr>
-            <td><input type="date" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="date" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-          </tr>
-          <tr>
-            <td><input type="date" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="date" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-          </tr>
-          <tr>
-            <td><input type="date" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="date" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-          </tr>
-          <tr>
-            <td><input type="date" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-            <td><input type="date" class="w-full border-none"></td>
-            <td><input type="text" class="w-full border-none"></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- Reminder Section -->
-      <div class="reminder-section">
-        <p><strong>Reminders:</strong> Under Sec. 5 of RA 6713, otherwise known as the <em>Code of Conduct and Ethical Standards for Public Officials and Employees</em>, enjoins all public servants to respond to letters, telegrams, and other means of communication sent by the public within fifteen (15) working days from the receipt thereof. The reply must contain the action taken on the request. Likewise, all official papers and documents must be processed and completed within a reasonable time.</p>
-      </div>
-
-      <!-- Save Button -->
-      <div class="flex justify-end mt-4">
-        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition">
-          <i class="fas fa-save mr-2"></i> Save Document
-        </button>
+    <!-- Records Section (Hidden by default) -->
+    <div id="recordsSection" class="hidden">
+      <div class="document-section">
+        <div class="document-header">
+          <div>
+            <i class="fas fa-archive mr-2"></i> Document Records
+            <span class="document-count">5 records</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+              <i class="fas fa-filter mr-1"></i> Filter
+            </button>
+            <button class="bg-purple-600 text-white px-3 py-1 rounded text-sm">
+              <i class="fas fa-print mr-1"></i> Print
+            </button>
+          </div>
+        </div>
+        <div class="table-container overflow-x-auto">
+          <table class="document-table">
+            <thead>
+              <tr>
+                <th>Control No.</th>
+                <th>Date/Time</th>
+                <th>Document Type</th>
+                <th>Direction</th>
+                <th>Priority</th>
+                <th>Subject</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>UDHO2025-1042</td>
+                <td>2025-05-07 19:28</td>
+                <td>Memo Letter</td>
+                <td>Incoming</td>
+                <td><span class="priority-badge priority-medium">7 days</span></td>
+                <td>Request for housing assistance</td>
+                <td>Pending</td>
+                <td>
+                  <button onclick="showDocumentDetails('UDHO2025-1042')" class="text-blue-600 hover:text-blue-800 mr-2">
+                    <i class="fas fa-eye"></i> View
+                  </button>
+                  <button class="text-green-600 hover:text-green-800">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>UDHO2025-1041</td>
+                <td>2025-05-06 14:15</td>
+                <td>Report Proposal</td>
+                <td>Outgoing</td>
+                <td><span class="priority-badge priority-low">15 days</span></td>
+                <td>Quarterly housing report</td>
+                <td>Completed</td>
+                <td>
+                  <button onclick="showDocumentDetails('UDHO2025-1041')" class="text-blue-600 hover:text-blue-800 mr-2">
+                    <i class="fas fa-eye"></i> View
+                  </button>
+                  <button class="text-green-600 hover:text-green-800">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>UDHO2025-1040</td>
+                <td>2025-05-05 10:30</td>
+                <td>Referral Request</td>
+                <td>Incoming</td>
+                <td><span class="priority-badge priority-high">3 days</span></td>
+                <td>Urgent housing relocation</td>
+                <td>In Progress</td>
+                <td>
+                  <button onclick="showDocumentDetails('UDHO2025-1040')" class="text-blue-600 hover:text-blue-800 mr-2">
+                    <i class="fas fa-eye"></i> View
+                  </button>
+                  <button class="text-green-600 hover:text-green-800">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>UDHO2025-1039</td>
+                <td>2025-05-04 16:45</td>
+                <td>Memo Letter</td>
+                <td>Outgoing</td>
+                <td><span class="priority-badge priority-medium">7 days</span></td>
+                <td>Notice of assessment</td>
+                <td>Completed</td>
+                <td>
+                  <button onclick="showDocumentDetails('UDHO2025-1039')" class="text-blue-600 hover:text-blue-800 mr-2">
+                    <i class="fas fa-eye"></i> View
+                  </button>
+                  <button class="text-green-600 hover:text-green-800">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>UDHO2025-1038</td>
+                <td>2025-05-03 09:20</td>
+                <td>Others: Invitation</td>
+                <td>Incoming</td>
+                <td><span class="priority-badge priority-low">20 days</span></td>
+                <td>Community meeting invitation</td>
+                <td>Pending</td>
+                <td>
+                  <button onclick="showDocumentDetails('UDHO2025-1038')" class="text-blue-600 hover:text-blue-800 mr-2">
+                    <i class="fas fa-eye"></i> View
+                  </button>
+                  <button class="text-green-600 hover:text-green-800">
+                    <i class="fas fa-edit"></i> Edit
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-
- 
 
   <script>
     function validateControlNumber() {
@@ -462,9 +703,30 @@
       // In a real implementation, this would open a modal with document details
     }
 
-    // Initialize the page
+    // Toggle between Routing Slip and Records sections
     document.addEventListener('DOMContentLoaded', () => {
-      // No need for auto-generation now
+      const routingSlipBtn = document.getElementById('routingSlipBtn');
+      const recordsBtn = document.getElementById('recordsBtn');
+      const routingSlipSection = document.getElementById('routingSlipSection');
+      const recordsSection = document.getElementById('recordsSection');
+
+      routingSlipBtn.addEventListener('click', () => {
+        routingSlipBtn.classList.remove('inactive');
+        routingSlipBtn.classList.add('active');
+        recordsBtn.classList.remove('active');
+        recordsBtn.classList.add('inactive');
+        routingSlipSection.classList.remove('hidden');
+        recordsSection.classList.add('hidden');
+      });
+
+      recordsBtn.addEventListener('click', () => {
+        recordsBtn.classList.remove('inactive');
+        recordsBtn.classList.add('active');
+        routingSlipBtn.classList.remove('active');
+        routingSlipBtn.classList.add('inactive');
+        recordsSection.classList.remove('hidden');
+        routingSlipSection.classList.add('hidden');
+      });
     });
   </script>
 </body>

@@ -141,7 +141,7 @@
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/Settings/setting.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="/UDHO%20SYSTEM/Settings/setting_hoa.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-cog mr-3"></i> Settings
           </a>
         </li>
