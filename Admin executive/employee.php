@@ -458,64 +458,36 @@
 
     <!-- Login History Modal -->
     <div id="loginHistoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-      <div class="bg-white rounded-lg p-6 w-full max-w-3xl">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-semibold">Login History for <span id="historyEmployeeName">Juan Dela Cruz</span></h3>
-          <button onclick="closeModal('loginHistoryModal')" class="text-gray-500 hover:text-gray-700">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-        <div class="overflow-y-auto max-h-96">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">Today, 10:45 AM</td>
-                <td class="px-6 py-4 whitespace-nowrap">192.168.1.100</td>
-                <td class="px-6 py-4 whitespace-nowrap">Windows 10, Chrome</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Success</span>
-                </td>
-              </tr>
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">Yesterday, 2:30 PM</td>
-                <td class="px-6 py-4 whitespace-nowrap">192.168.1.100</td>
-                <td class="px-6 py-4 whitespace-nowrap">Windows 10, Chrome</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Success</span>
-                </td>
-              </tr>
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">2 days ago, 9:15 AM</td>
-                <td class="px-6 py-4 whitespace-nowrap">192.168.1.50</td>
-                <td class="px-6 py-4 whitespace-nowrap">Android, Mobile</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Success</span>
-                </td>
-              </tr>
-              <tr>
-                <td class="px-6 py-4 whitespace-nowrap">3 days ago, 11:20 AM</td>
-                <td class="px-6 py-4 whitespace-nowrap">203.177.45.100</td>
-                <td class="px-6 py-4 whitespace-nowrap">Unknown</td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Failed (Wrong Password)</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="mt-4 flex justify-end">
-          <button onclick="closeModal('loginHistoryModal')" class="px-4 py-2 bg-gray-200 rounded-md">Close</button>
-        </div>
+  <div class="bg-white rounded-lg p-6 w-full max-w-3xl">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-xl font-semibold">Login History for <span id="historyEmployeeName">Employee Name</span></h3>
+      <button onclick="closeModal('loginHistoryModal')" class="text-gray-500 hover:text-gray-700">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="overflow-y-auto max-h-96">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200" id="loginHistoryBody">
+          <!-- Login history will be loaded here via AJAX -->
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-4 flex justify-between items-center">
+      <div class="text-sm text-gray-500" id="historyCount">Showing 0 entries</div>
+      <div>
+        <button onclick="closeModal('loginHistoryModal')" class="px-4 py-2 bg-gray-200 rounded-md">Close</button>
       </div>
     </div>
+  </div>
+</div>
   </div>
 
   <script>
@@ -605,6 +577,7 @@
       alert('New employee added successfully!');
       closeModal('addEmployeeModal');
     });
+    
   </script>
 </body>
 
