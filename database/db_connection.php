@@ -4,6 +4,8 @@ $dbname = 'udho_db';
 $username = 'root';
 $password = '';
 
+
+
 try {
     // Create PDO connection with additional options
     $pdo = new PDO(
