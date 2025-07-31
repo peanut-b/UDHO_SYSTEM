@@ -245,7 +245,7 @@
         }
         
         .camera-preview {
-            width: 100%;
+            width: auto;
             display: none;
         }
         
@@ -458,9 +458,73 @@
                 grid-template-columns: 1fr;
             }
         }
+             .survey-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .survey-meta-item {
+        display: flex;
+        flex-direction: column;
+        min-width: 150px;
+    }
+
+    .survey-meta-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .survey-meta-item div:not(.survey-meta-label) {
+        color: #212529;
+        font-size: 15px;
+    }
+
+    .logout-btn {
+        align-self: flex-end;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+        margin-top: auto;
+    }
+
+    .logout-btn:hover {
+        background-color: #c82333;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .survey-meta {
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .survey-meta-item {
+            min-width: 100%;
+        }
+        
+        .logout-btn {
+            align-self: flex-start;
+            margin-top: 10px;
+        }
+    }
     </style>
 </head>
 <body class="bg-gray-100 p-2 md:p-4 lg:p-8">
+    
+        
 
     <!-- Camera Modal -->
     <div id="camera-modal" class="camera-modal">
@@ -513,12 +577,38 @@
         </div>
     </div>
 
+    
+
     <div id="form-container" class="form-container bg-white rounded-lg mx-2 md:mx-auto">
         <div class="p-4 md:p-6 lg:p-8">
             <div class="form-header mb-6 md:mb-8">
                 <h1 class="form-title mb-2">Housing Survey Form</h1>
                 <p class="form-description">This survey collects information about housing conditions and needs for urban development planning.</p>
             </div>
+
+            <!-- Add this after the form-header div -->
+            <div class="survey-meta">
+                <div class="survey-meta-item">
+                    <div>Enumerator: <span id="enumerator-name">John Doe</span></div>
+                    <div id="form-enumerator-name">John Doe</div>
+                </div>
+                <div class="survey-meta-item">
+                    <div class="survey-meta-label">Enumerator ID:</div>
+                    <div>ID: <span id="enumerator-id">EN-12345</span></div>
+                </div>
+                <div class="survey-meta-item">
+                    <div class="survey-meta-label">Survey Started:</div>
+                    <div id="survey-start-time"><?php echo date('Y-m-d H:i:s'); ?></div>
+                </div>
+                <div class="survey-meta-item">
+                    <div class="survey-meta-label">Survey Completed:</div>
+                    <div id="survey-end-time">-</div>
+                </div>
+                <div class="survey-meta-item">
+                    <button id="logout-button" class="logout-btn">Logout</button>
+                </div>
+            </div>
+
 
             <!-- UD Code and TAG Number Section -->
             <div id="tag-number-section" class="mb-6">
@@ -552,12 +642,11 @@
                         </div>
                     </div>
             
-                    <div class="qr-code-container">
-                        <div class="qr-code-label">Survey QR Code</div>
-                        <div id="survey-qr-code" class="qr-code-canvas"></div>
-                    </div>
+                    
                 </div>
             </div>
+
+            
             
             <!-- Location Section (Moved to top) -->
             <div id="location-section" class="mb-6 md:mb-8 p-4 md:p-6 bg-white rounded-lg border border-gray-200">
@@ -625,10 +714,26 @@
                 </div>
             </div>
 
+
             <!-- Form Pages -->
             <div id="form-page-1" class="form-page">
                 <!-- Section I: Personal Data -->
-                        
+                        <div class="mb-4 md:mb-6">
+                <p class="question-title required-field">Survey Type</p>
+                <div class="relative">
+                    <select id="survey-type" class="form-control" required>
+                        <option value="">Select Survey Type</option>
+                        <option value="IDSAP-FIRE VICTIM">IDSAP-FIRE VICTIM</option>
+                        <option value="IDSAP-FLOOD">IDSAP-FLOOD</option>
+                        <option value="IDSAP-EARTHQUAKE">IDSAP-EARTHQUAKE</option>
+                        <option value="CENSUS-PDC">CENSUS-PDC</option>
+                        <option value="CENSUS-HOA">CENSUS-HOA</option>
+                        <option value="CENSUS-WATERWAYS">CENSUS-WATERWAYS</option>
+                        <option value="OTHERS">OTHERS (Please specify)</option>
+                    </select>
+                </div>
+                <input type="text" id="other-survey-type" class="form-control mt-2 hidden" placeholder="Please specify survey type">
+            </div>        
 
                 <!-- Personal Data Section -->
                 <div class="mb-6 md:mb-8">
@@ -786,7 +891,15 @@
                             </div>
                             <div>
                                 <label for="barangay" class="block text-xs text-gray-600 mb-1">Barangay</label>
-                                <input type="text" id="barangay" class="form-control" required>
+                                <div class="relative">
+                                    <input type="text" id="barangay" list="barangayList" class="form-control w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required
+                                        placeholder="Type or select barangay">
+                                    <datalist id="barangayList">
+                                        <?php for($i = 1; $i <= 201; $i++): ?>
+                                            <option value="Barangay <?php echo $i; ?>">
+                                        <?php endfor; ?>
+                                    </datalist>
+                                </div>
                             </div>
                             <div>
                                 <label for="city" class="block text-xs text-gray-600 mb-1">City</label>
@@ -917,7 +1030,7 @@
                         <div>
                             <p class="question-title">SHELTER NEEDS</p>
                             <div class="flex flex-col gap-1 md:gap-2">
-                                <label class="inline-flex items-center"><input type="checkbox" id="security-upgrading" class="form-checkbox h-4 w-4 text-indigo-600"> <span class="ml-2">Security Upgrading</span></label>
+                                <label class="inline-flex items-center"><input type="checkbox" id="security-upgrading" class="form-checkbox h-4 w-4 text-indigo-600"> <span class="ml-2">Tenurial Upgrading</span></label>
                                 <label class="inline-flex items-center"><input type="checkbox" id="shelter-provision" class="form-checkbox h-4 w-4 text-indigo-600"> <span class="ml-2">Shelter Provision</span></label>
                                 <label class="inline-flex items-center"><input type="checkbox" id="structural-upgrading" class="form-checkbox h-4 w-4 text-indigo-600"> <span class="ml-2">Structural Upgrading</span></label>
                                 <label class="inline-flex items-center"><input type="checkbox" id="infrastructure-upgrading" class="form-checkbox h-4 w-4 text-indigo-600"> <span class="ml-2">Infrastructure Upgrading</span></label>
@@ -1021,39 +1134,47 @@
     </div>
 
     <!-- Thank You Page -->
-    <div id="thank-you-page" class="form-page hidden">
-        <div class="text-center p-8 md:p-12">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">Thank You!</h2>
-            <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
-            Thank you for completing the survey. Your TAG number is:
-            </p>
-            
-            <!-- TAG Number Display -->
-            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 max-w-md mx-auto mb-6">
-                <h3 class="text-xl font-bold mb-2" id="final-tag-number"></h3>
-                <div class="mb-4">
-                    <div class="barcode-label mb-2">TAG Number Barcode</div>
-                    <svg id="final-tag-barcode" class="w-full h-16"></svg>
+    <!-- Update the thank-you-page div -->
+        <div id="thank-you-page" class="form-page hidden">
+            <div class="text-center p-8 md:p-12">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">Thank You!</h2>
+                <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
+                    Thank you for completing the survey. Your TAG number is:
+                </p>
+                
+                <!-- TAG Number Display -->
+                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 max-w-md mx-auto mb-6">
+                    <h3 class="text-xl font-bold mb-2" id="final-tag-number"></h3>
+                    <div class="mb-4">
+                        <div class="barcode-label mb-2">TAG Number Barcode</div>
+                        <svg id="final-tag-barcode" class="w-full h-16"></svg>
+                    </div>
+                    <div class="survey-meta-item">
+                        <div class="survey-meta-label">Enumerator:</div>
+                        <div id="thankyou-enumerator-name">John Doe</div>
+                    </div>
+                    <div class="survey-meta-item">
+                        <div class="survey-meta-label">Completed On:</div>
+                        <div id="thankyou-completion-time"><?php echo date('Y-m-d H:i:s'); ?></div>
+                    </div>
+                    <div class="survey-meta-item">
+                        <div class="survey-meta-label">Duration:</div>
+                        <div id="thankyou-duration">-</div>
+                    </div>
+                    
                 </div>
-                <div>
-                    <div class="qr-code-label mb-2">Survey QR Code</div>
-                    <div id="final-qr-code" class="flex justify-center"></div>
-                </div>
+
+                <!-- Survey Completion Details -->
+                
+
+                <button id="return-home-btn" class="form-button bg-indigo-600 hover:bg-indigo-700 text-white font-medium">
+                    Return to Home
+                </button>
             </div>
-
-            <p class="text-gray-600 mb-8 max-w-2xl mx-auto">
-            Please save or take a screenshot of your TAG number for future reference.
-            </p>
-        
-
-            <button id="return-home-btn" class="form-button bg-indigo-600 hover:bg-indigo-700 text-white font-medium">
-                Return to Home
-            </button>
         </div>
-    </div>
 
     <!-- Load Leaflet JS for maps -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
@@ -1153,6 +1274,7 @@
             
             signaturePadContext.putImageData(imageData, 0, 0);
         }
+        
 
         // Initialize map centered on Pasay City
         function initMap() {
@@ -1203,7 +1325,7 @@
         }
 
         function updateLocationText(latlng) {
-            // First show coordinates while we fetch address
+            // Show coordinates
             locationText.innerHTML = `<span id="location-status">Selected location:</span> Latitude: ${latlng.lat.toFixed(6)}, Longitude: ${latlng.lng.toFixed(6)}`;
             
             // Reverse geocode to get address
@@ -1212,16 +1334,6 @@
                 .then(data => {
                     const address = data.display_name || 'Selected location';
                     locationText.innerHTML = `<span id="location-status">Selected location:</span> ${address}`;
-                    
-                    // Try to get barangay from reverse geocoding
-                    if (data.address) {
-                        const barangay = data.address.suburb || data.address.neighbourhood || 
-                                        data.address.village || data.address.city_district || '';
-                        if (barangay) {
-                            document.getElementById('barangay').value = barangay;
-                            document.getElementById('manual-barangay').value = barangay;
-                        }
-                    }
                 })
                 .catch(error => {
                     console.error('Error fetching address:', error);
@@ -1325,34 +1437,11 @@
                 locationConfirmed = true;
                 marker.dragging.disable();
                 
-                // Update address fields
-                const address = locationText.textContent.replace('Selected location:', '').trim();
-                document.getElementById('street').value = address;
-                
                 // Show confirmed location details
                 document.getElementById('confirmed-coords').textContent = 
                     `Latitude: ${userLocation.lat.toFixed(6)}, Longitude: ${userLocation.lng.toFixed(6)}`;
-                document.getElementById('confirmed-address').textContent = address;
+                document.getElementById('confirmed-address').textContent = locationText.textContent.replace('Selected location:', '').trim();
                 locationDetails.classList.remove('hidden');
-                
-                // Try to get barangay from reverse geocoding
-                if (userLocation) {
-                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.lat}&lon=${userLocation.lng}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.address) {
-                                const barangay = data.address.suburb || data.address.neighbourhood || 
-                                                data.address.village || data.address.city_district || '';
-                                if (barangay) {
-                                    document.getElementById('barangay').value = barangay;
-                                    document.getElementById('manual-barangay').value = barangay;
-                                }
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error fetching detailed address:', error);
-                        });
-                }
             }
         }
 
@@ -1373,6 +1462,13 @@
         // Reset form to default state
         function resetForm() {
             // Reset form fields
+
+            // Add to resetForm() function
+            document.getElementById('survey-type').value = '';
+            document.getElementById('other-survey-type').value = '';
+            document.getElementById('other-survey-type').classList.add('hidden');
+            document.getElementById('other-survey-type').required = false;
+
             document.getElementById('hh-surname').value = '';
             document.getElementById('hh-firstname').value = '';
             document.getElementById('hh-middlename').value = '';
@@ -1442,6 +1538,7 @@
             // Reset confirmation checkboxes
             document.getElementById('data-accuracy-checkbox').checked = false;
             document.getElementById('privacy-policy-checkbox').checked = false;
+
             
             // Reset location
             if (marker) {
@@ -1486,8 +1583,8 @@
                 
                 cameraStream = await navigator.mediaDevices.getUserMedia({ 
                     video: { 
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 },
+                        width: { ideal: 480 },
+                        height: { ideal: 272 },
                         facingMode: facingMode 
                     } 
                 });
@@ -1613,46 +1710,44 @@
             }
         }
 
+        // Function to auto-format tagging number (e.g., "2025-186-001")
+            
+
         // Form navigation functions
         function showPage(pageIndex) {
-            console.log(`Showing page ${pageIndex}`);
-            
-            // Hide thank you page when showing other pages
-            thankYouPage.classList.add('hidden');
-            
-            // Log before hiding
-            console.log('Hiding all pages');
-            formPages.forEach((page, i) => {
-                console.log(`Page ${i} hidden state before: ${page.classList.contains('hidden')}`);
-                page.classList.add('hidden');
-                console.log(`Page ${i} hidden state after: ${page.classList.contains('hidden')}`);
-            });
-            
-            // Show the requested page
-            console.log(`Showing page ${pageIndex}`);
-            formPages[pageIndex].classList.remove('hidden');
-            console.log(`Page ${pageIndex} hidden state after show: ${formPages[pageIndex].classList.contains('hidden')}`);
-
-            // Show location and TAG number sections only on first page
-            if (pageIndex === 0) {
-                locationSection.classList.remove('hidden');
-                tagNumberSection.classList.remove('hidden');
-                if (locationConfirmed) {
-                    locationDetails.classList.remove('hidden');
-                }
-            } else {
-                locationSection.classList.add('hidden');
-                tagNumberSection.classList.add('hidden');
-                locationDetails.classList.add('hidden');
+    console.log(`Showing page ${pageIndex}`);
+    
+    // Hide thank you page when showing other pages
+    thankYouPage.classList.add('hidden');
+    
+    // Hide all pages
+    formPages.forEach((page, i) => {
+        page.classList.add('hidden');
+    });
+    
+    // Show the requested page
+    formPages[pageIndex].classList.remove('hidden');
+    
+    currentPage = pageIndex;
+    
+    // Show location and TAG number sections only on first page
+        if (pageIndex === 0) {
+            locationSection.classList.remove('hidden');
+            tagNumberSection.classList.remove('hidden');
+            if (locationConfirmed) {
+                locationDetails.classList.remove('hidden');
             }
-            
-            currentPage = pageIndex;
-            
-            // Initialize signature pad when showing page 3
-            if (pageIndex === 2) {
-                initializeSignaturePad();
-            }
+        } else {
+            locationSection.classList.add('hidden');
+            tagNumberSection.classList.add('hidden');
+            locationDetails.classList.add('hidden');
         }
+        
+        // Initialize signature pad when showing page 3
+        if (pageIndex === 2) {
+            initializeSignaturePad();
+        }
+    }
 
         function nextPage() {
             if (currentPage < formPages.length - 1) {
@@ -1761,21 +1856,21 @@
         confirmLocationBtn.addEventListener('click', confirmLocation);
         
         saveManualLocationBtn.addEventListener('click', () => {
-            const address = document.getElementById('manual-address').value;
-            const barangay = document.getElementById('manual-barangay').value;
-            const zone = document.getElementById('manual-zone').value;
-            
-            if (!address || !barangay) {
-                alert('Please enter at least address and barangay');
-                return;
-            }
-            
-            document.getElementById('street').value = address;
-            document.getElementById('barangay').value = barangay;
-            
-            manualLocationDiv.classList.add('hidden');
-            locationText.textContent = `${address}, ${barangay}, Pasay City`;
-        });
+                const address = document.getElementById('manual-address').value;
+                const barangay = document.getElementById('manual-barangay').value;
+                const zone = document.getElementById('manual-zone').value;
+                
+                if (!address || !barangay) {
+                    alert('Please enter at least address and barangay');
+                    return;
+                }
+                
+                document.getElementById('street').value = address;
+                document.getElementById('barangay').value = barangay;
+                
+                manualLocationDiv.classList.add('hidden');
+                locationText.textContent = `${address}, ${barangay}, Pasay City`;
+            });
 
         // Confirmation modal
         submitFormBtn.addEventListener('click', () => {
@@ -1965,18 +2060,18 @@
             row.className = 'member-row';
             
             row.innerHTML = `
-                <td class="py-1 px-2 border-b"><input type="text" class="form-control border-none p-1" required></td>
-                <td class="py-1 px-2 border-b"><input type="text" class="form-control border-none p-1" required></td>
-                <td class="py-1 px-2 border-b"><input type="number" class="form-control border-none p-1" required></td>
+                <td class="py-1 px-2 border-b"><input type="text" class="form-control border-none p-1"></td>
+                <td class="py-1 px-2 border-b"><input type="text" class="form-control border-none p-1"></td>
+                <td class="py-1 px-2 border-b"><input type="number" class="form-control border-none p-1"></td>
                 <td class="py-1 px-2 border-b">
-                    <select class="form-control border-none p-1" required>
+                    <select class="form-control border-none p-1">
                         <option value=""></option>
                         <option>M</option>
                         <option>F</option>
                     </select>
                 </td>
-                <td class="py-1 px-2 border-b"><input type="date" class="form-control border-none p-1" required></td>
-                <td class="py-1 px-2 border-b"><input type="text" class="form-control border-none p-1" required></td>
+                <td class="py-1 px-2 border-b"><input type="date" class="form-control border-none p-1"></td>
+                <td class="py-1 px-2 border-b"><input type="text" class="form-control border-none p-1"></td>
                 <td class="py-1 px-2 border-b">
                     <button type="button" class="remove-member-btn">Remove</button>
                 </td>
@@ -1984,7 +2079,7 @@
             
             memberTableBody.appendChild(row);
             
-            // Add age calculation when birthdate changes
+            // Add age calculation when birthdate changes (optional)
             const birthdateInput = row.querySelector('input[type="date"]');
             const ageInput = row.querySelector('input[type="number"]');
             
@@ -1994,6 +2089,16 @@
                     ageInput.value = age;
                 }
             });
+            
+            // Add event listener to the remove button
+            row.querySelector('.remove-member-btn').addEventListener('click', () => {
+                if (memberTableBody.children.length > 1) {
+                    row.remove();
+                } else {
+                    alert('You must have at least one household member (the head)');
+                }
+            });
+
             
             // Add event listener to the remove button
             row.querySelector('.remove-member-btn').addEventListener('click', () => {
@@ -2027,6 +2132,81 @@
                     resizeSignaturePad();
                 }
             });
+        });
+
+        // Add this to your JavaScript section
+        document.getElementById('survey-type').addEventListener('change', function() {
+            const otherInput = document.getElementById('other-survey-type');
+            if (this.value === 'OTHERS') {
+                otherInput.classList.remove('hidden');
+                otherInput.required = true;
+            } else {
+                otherInput.classList.add('hidden');
+                otherInput.required = false;
+            }
+        });
+
+        // Add these variables at the top with other declarations
+        let surveyStartTime = new Date();
+        let surveyEndTime = null;
+
+        // Add this function to calculate duration
+        function formatDuration(start, end) {
+            const diff = Math.floor((end - start) / 1000); // in seconds
+            
+            const hours = Math.floor(diff / 3600);
+            const minutes = Math.floor((diff % 3600) / 60);
+            const seconds = diff % 60;
+            
+            return `${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        // Update the confirmSubmissionBtn click handler
+        confirmSubmissionBtn.addEventListener('click', () => {
+            confirmationModal.style.display = 'none';
+            surveyEndTime = new Date();
+            
+            // Update completion time displays
+            const formattedEndTime = surveyEndTime.toLocaleString();
+            document.getElementById('survey-end-time').textContent = formattedEndTime;
+            document.getElementById('thankyou-completion-time').textContent = formattedEndTime;
+            
+            // Calculate and display duration
+            const duration = formatDuration(surveyStartTime, surveyEndTime);
+            document.getElementById('thankyou-duration').textContent = duration;
+            
+            // Update enumerator info in thank you page
+            document.getElementById('thankyou-enumerator-name').textContent = 
+                document.getElementById('enumerator-name').textContent;
+            
+            // Rest of your existing submission code...
+        });
+
+        // Add logout functionality
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                // Here you would typically redirect to logout page
+                // For this example, we'll just reload
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Initialize enumerator info (in a real app, this would come from your auth system)
+        document.addEventListener('DOMContentLoaded', () => {
+            // These values would normally come from your authentication system
+            const enumeratorName = "John Doe";
+            const enumeratorId = "EN-12345";
+            
+            // Set enumerator info in all locations
+            document.getElementById('enumerator-name').textContent = enumeratorName;
+            document.getElementById('enumerator-id').textContent = enumeratorId;
+            document.getElementById('form-enumerator-name').textContent = enumeratorName;
+            document.getElementById('form-enumerator-id').textContent = enumeratorId;
+            
+            // Set survey start time
+            document.getElementById('survey-start-time').textContent = surveyStartTime.toLocaleString();
+            
+            // Rest of your existing initialization code...
         });
     </script>
 </body>

@@ -339,14 +339,14 @@
     <div id="certificateOutput" class="certificate">
         <div class="header-container">
             <div class="logo-container">
-                <img src="\UDHO%20SYSTEM\assets\PASAYLOGO.png" alt="Pasay Logo" class="logo">
-                <img src="\UDHO%20SYSTEM\assets\PILIPINASLOGO.png" alt="Bagong Pilipinas" class="logo">
+                <img src="\UDHO%20SYSTEM\assets\PILIPINASLOGO.png" alt="Pasay Logo" class="logo">
+                <img src="\UDHO%20SYSTEM\assets\PASAYLOGO.png" alt="Bagong Pilipinas" class="logo">
                 <img src="\UDHO%20SYSTEM\assets\UDHOLOGO.png" alt="UDHO Logo" class="logo">
             </div>
             <div class="header-text">
                 <p>Republika ng Pilipinas<br>
                 Lungsod ng Pasay, Kalakhang Maynila<br>
-                <strong><span style="font-size: 0.8em;"></span>DEVELOPMENT AND HOUSING OFFICE</strong><br>
+                <strong><span style="font-size: 0.8em;"></span>URBAND DEVELOPMENT AND HOUSING OFFICE</strong><br>
                 <span style="font-size: 0.8em; padding-top: 0em">Room 209, Pasay City Hall, F.B. Harrison St., Pasay City</span></p><br>
             </div>
         </div>
@@ -395,20 +395,25 @@
             <div class="footer-left">
                 <table>
                     
-                    <td style="vertical-align: top; text-align: right; padding-right: 2em;" colspan="2">
-                        <div style="height: 5em;"></div>
+                    <td style="vertical-align: top; text-align: right; padding-right: 2.5em;" colspan="2">
+                        <div style="height: 4em;"></div>
                         <span>By the authority of the City Mayor,</span><br><br>
                     </td>
                     <tr>
                         <td style="vertical-align: top; padding-left: 20em; ">
                         </td>
                         <td style="vertical-align: top; padding-right: 0em;">
-                            <div style="height: 5em;"></div>
+                            <div style="height: 4em;"></div>
                             <span style="font-weight: bold; padding-right: 5em;">MARGARITA G. IGNACIO</span><br>
                             <span style="padding-right: 0em;">Officer-in-Charge</span><br>
                             <span style="padding-right: 0em; white-space: nowrap;">Urban Development and Housing Office</span><br>
                         </td>
                     </tr>
+                    <td style="vertical-align: top; text-align: right; padding-right: 0.2em;" colspan="2">
+                        <div style="height: 2em;"></div>
+                        <span style="font-style: italic; font-size: smaller;">This document is not valid without dry seal</span><br><br>
+                    </td>
+                    
                 </table>
             </div>
     </div>
@@ -586,7 +591,7 @@
             
             // Update certificate
             document.getElementById('outputName').textContent = name.toUpperCase();
-            document.getElementById('outputAddress').textContent = address;
+            document.getElementById('outputAddress').textContent = address.toUpperCase();
             document.getElementById('outputControlNumber').textContent = `${currentYear}-${controlNumberSuffix}`;
             document.getElementById('currentDate').textContent = formattedDate;
             
@@ -746,8 +751,8 @@
 
             // Update image paths to absolute URLs
             const logos = certificate.querySelectorAll('.logo');
-            logos[0].src = window.location.origin + '/UDHO%20SYSTEM/assets/PASAYLOGO.png';
-            logos[1].src = window.location.origin + '/UDHO%20SYSTEM/assets/PILIPINASLOGO.png';
+            logos[0].src = window.location.origin + '/UDHO%20SYSTEM/assets/PILIPINASLOGO.png';
+            logos[1].src = window.location.origin + '/UDHO%20SYSTEM/assets/PASAYLOGO.png';
             logos[2].src = window.location.origin + '/UDHO%20SYSTEM/assets/UDHOLOGO.png';
 
             const printWindow = window.open('', '', 'width=800,height=600');
@@ -783,7 +788,7 @@
                                 display: flex;
                                 flex-direction: column;
                                 align-items: center;
-                                margin-bottom: 20px;
+                                margin-bottom: 10px;
                             }
 
                             .logo-container {
