@@ -49,7 +49,7 @@
     /* Landscape modal styling */
     .landscape-modal {
       width: 90%;
-      max-width: 900px;
+      max-width: 1000px;
     }
     
     /* Photo preview with delete button */
@@ -87,6 +87,31 @@
       justify-content: flex-end;
       gap: 0.5rem;
       margin-top: 1rem;
+    }
+    
+    /* Form and camera side by side */
+    .form-camera-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .form-section {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .camera-section {
+      flex: 1;
+      min-width: 300px;
+      max-width: 400px;
+    }
+    
+    .camera-box {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      background: #f9fafb;
     }
   </style>
 </head>
@@ -180,67 +205,90 @@
       <!-- Scrollable Content Area -->
       <div id="modalContent" class="overflow-y-auto flex-1 p-4">
         <form id="addDataForm" class="space-y-3">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div>
-              <label class="block mb-1 font-medium text-sm">Date Issued</label>
-              <input type="date" id="dateIssued" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required />
+          <div class="form-camera-container">
+            <!-- Form Section -->
+            <div class="form-section">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label class="block mb-1 font-medium text-sm">Date Issued</label>
+                  <input type="date" id="dateIssued" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required />
+                </div>
+                <div>
+                  <label class="block mb-1 font-medium text-sm">Case File No.</label>
+                  <input type="text" id="caseFile" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required />
+                </div>
+                <div>
+                  <label class="block mb-1 font-medium text-sm">Branch</label>
+                  <input type="text" id="branch" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required />
+                </div>
+                <div>
+                  <label class="block mb-1 font-medium text-sm">Affected Barangay</label>
+                  <input type="text" id="affectedBarangay" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required />
+                </div>
+                <div>
+                  <label class="block mb-1 font-medium text-sm">No. of Household Affected</label>
+                  <input type="number" id="householdAffected" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required />
+                </div>
+                <div>
+                  <label class="block mb-1 font-medium text-sm">Status</label>
+                  <select id="status" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required>
+                    <option value="">Select Status</option>
+                    <option value="CENSUS">CENSUS</option>
+                    <option value="DEMOLISHED">DEMOLISHED</option>
+                    <option value="EVICTED">EVICTED</option>
+                    <option value="DEMOLISHED AND EVICTED">DEMOLISHED AND EVICTED</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block mb-1 font-medium text-sm">Activities</label>
+                  <select id="activities" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required>
+                    <option value="">Select Activity</option>
+                    <option value="PENDING">PENDING</option>
+                    <option value="ONGOING">ONGOING</option>
+                    <option value="CANCELLED">CANCELLED</option>
+                    <option value="EXECUTED">EXECUTED</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="mt-3">
+                <label class="block mb-1 font-medium text-sm">Subject</label>
+                <textarea id="subject" rows="3" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required></textarea>
+              </div>
+              
+              <div class="mt-3">
+                <label class="block mb-1 font-medium text-sm">Attach Documents</label>
+                <input type="file" id="docScanner" accept="image/*" multiple class="block mb-2 w-full text-sm text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                <div id="docPreview" class="flex flex-wrap gap-2 mt-2"></div>
+              </div>
             </div>
-            <div>
-              <label class="block mb-1 font-medium text-sm">Case File No.</label>
-              <input type="text" id="caseFile" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required />
+            
+            <!-- Camera Section -->
+            <div class="camera-section">
+              <div class="camera-box">
+                <label class="block mb-2 font-medium text-sm">Document Scanner</label>
+                <div class="mb-2">
+                  <button type="button" onclick="startCamera()" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-md transition flex items-center text-xs w-full justify-center">
+                    <i class="fas fa-camera mr-1"></i> Start Camera
+                  </button>
+                  <video id="cameraStream" autoplay class="w-full h-48 mt-2 rounded-md hidden object-cover"></video>
+                  <button type="button" onclick="capturePhoto()" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-md mt-2 hidden transition flex items-center text-xs w-full justify-center" id="captureBtn">
+                    <i class="fas fa-camera-retro mr-1"></i> Capture Photo
+                  </button>
+                  <button type="button" onclick="stopCamera()" class="bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded-md mt-2 hidden transition flex items-center text-xs w-full justify-center" id="stopCameraBtn">
+                    <i class="fas fa-stop-circle mr-1"></i> Stop Camera
+                  </button>
+                </div>
+                
+                <div class="mt-4">
+                  <label class="block mb-1 font-medium text-sm">Preview</label>
+                  <div class="border rounded p-2 bg-gray-50 min-h-32">
+                    <p class="text-gray-500 text-xs text-center" id="noPreviewText">No photos captured yet</p>
+                    <div id="cameraPreview" class="flex flex-wrap gap-2 hidden"></div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <label class="block mb-1 font-medium text-sm">Branch</label>
-              <input type="text" id="branch" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required />
-            </div>
-            <div>
-              <label class="block mb-1 font-medium text-sm">Affected Barangay</label>
-              <input type="text" id="affectedBarangay" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required />
-            </div>
-            <div>
-              <label class="block mb-1 font-medium text-sm">No. of Household Affected</label>
-              <input type="number" id="householdAffected" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required />
-            </div>
-            <div>
-              <label class="block mb-1 font-medium text-sm">Status</label>
-              <select id="status" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required>
-                <option value="">Select Status</option>
-                <option value="CENSUS">CENSUS</option>
-                <option value="DEMOLISHED">DEMOLISHED</option>
-                <option value="EVICTED">EVICTED</option>
-                <option value="DEMOLISHED AND EVICTED">DEMOLISHED AND EVICTED</option>
-              </select>
-            </div>
-            <div>
-              <label class="block mb-1 font-medium text-sm">Activities</label>
-              <select id="activities" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required>
-                <option value="">Select Activity</option>
-                <option value="PENDING">PENDING</option>
-                <option value="ONGOING">ONGOING</option>
-                <option value="CANCELLED">CANCELLED</option>
-                <option value="EXECUTED">EXECUTED</option>
-              </select>
-            </div>
-          </div>
-          
-          <div>
-            <label class="block mb-1 font-medium text-sm">Subject</label>
-            <textarea id="subject" rows="3" class="w-full px-2 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" required></textarea>
-          </div>
-          
-          <div>
-            <label class="block mb-1 font-medium text-sm">Attach Documents</label>
-            <input type="file" id="docScanner" accept="image/*" multiple class="block mb-2 w-full text-sm text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-            <div class="mb-2">
-              <button type="button" onclick="startCamera()" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-md transition flex items-center text-xs">
-                <i class="fas fa-camera mr-1"></i> Capture from Camera
-              </button>
-              <video id="cameraStream" autoplay class="w-full h-40 mt-2 rounded-md hidden"></video>
-              <button type="button" onclick="capturePhoto()" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-md mt-2 hidden transition flex items-center text-xs" id="captureBtn">
-                <i class="fas fa-camera-retro mr-1"></i> Capture
-              </button>
-            </div>
-            <div id="docPreview" class="flex flex-wrap gap-2 mt-2"></div>
           </div>
         </form>
       </div>
@@ -382,6 +430,9 @@
     const viewImages = document.getElementById("viewImages");
     const video = document.getElementById("cameraStream");
     const captureBtn = document.getElementById("captureBtn");
+    const stopCameraBtn = document.getElementById("stopCameraBtn");
+    const cameraPreview = document.getElementById("cameraPreview");
+    const noPreviewText = document.getElementById("noPreviewText");
     const hdImageModal = document.getElementById("hdImageModal");
     const hdImage = document.getElementById("hdImage");
     const downloadLink = document.getElementById("downloadLink");
@@ -396,6 +447,7 @@
     let stream = null;
     let deleteTargetRow = null;
     let deletePhotoIndex = null;
+    let cameraPhotos = [];
 
     // Modal Functions
     function openModal(editing = false) {
@@ -404,7 +456,11 @@
       if (!editing) {
         form.reset();
         docPreview.innerHTML = "";
+        cameraPreview.innerHTML = "";
+        cameraPreview.classList.add("hidden");
+        noPreviewText.classList.remove("hidden");
         attachedDocs = [];
+        cameraPhotos = [];
         modalTitle.textContent = "Add New Record";
         stopCamera();
       }
@@ -512,6 +568,45 @@
       });
     }
 
+    // Render camera photos with delete buttons
+    function renderCameraPhotos() {
+      cameraPreview.innerHTML = "";
+      cameraPhotos.forEach((src, index) => {
+        const container = document.createElement("div");
+        container.className = "photo-container";
+        
+        const img = document.createElement("img");
+        img.src = src;
+        img.className = "w-16 h-16 object-cover border cursor-pointer rounded";
+        img.onclick = () => showHDImage(src);
+        
+        const deleteBtn = document.createElement("span");
+        deleteBtn.className = "delete-photo";
+        deleteBtn.innerHTML = "×";
+        deleteBtn.onclick = (e) => {
+          e.stopPropagation();
+          cameraPhotos.splice(index, 1);
+          renderCameraPhotos();
+          if (cameraPhotos.length === 0) {
+            cameraPreview.classList.add("hidden");
+            noPreviewText.classList.remove("hidden");
+          }
+        };
+        
+        container.appendChild(img);
+        container.appendChild(deleteBtn);
+        cameraPreview.appendChild(container);
+      });
+      
+      if (cameraPhotos.length > 0) {
+        cameraPreview.classList.remove("hidden");
+        noPreviewText.classList.add("hidden");
+      } else {
+        cameraPreview.classList.add("hidden");
+        noPreviewText.classList.remove("hidden");
+      }
+    }
+
     // Data Table Functions
     function editRow(button) {
       const row = button.closest("tr");
@@ -583,6 +678,7 @@
           video.srcObject = stream;
           video.classList.remove("hidden");
           captureBtn.classList.remove("hidden");
+          stopCameraBtn.classList.remove("hidden");
         })
         .catch(err => {
           console.error("Camera error:", err);
@@ -598,6 +694,7 @@
       }
       video.classList.add("hidden");
       captureBtn.classList.add("hidden");
+      stopCameraBtn.classList.add("hidden");
     }
 
     function capturePhoto() {
@@ -607,13 +704,16 @@
       canvas.getContext("2d").drawImage(video, 0, 0);
       const imageData = canvas.toDataURL("image/png");
 
-      attachedDocs.push(imageData);
-      renderPhotos();
+      cameraPhotos.push(imageData);
+      renderCameraPhotos();
     }
 
     // Form Submission
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+
+      // Add camera photos to attached docs
+      attachedDocs = [...attachedDocs, ...cameraPhotos];
 
       const date = document.getElementById("dateIssued").value;
       const subject = document.getElementById("subject").value;
