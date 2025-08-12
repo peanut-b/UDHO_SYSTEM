@@ -1,8 +1,8 @@
 <?php
 $host = 'localhost';
-$dbname = 'udho_db';
-$username = 'root';
-$password = '';
+$dbname = 'u687661100_udho_db';
+$username = 'u687661100_admin';
+$password = 'Udhodbms01';
 
 
 

@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,24 +43,28 @@
   <div class="w-64 bg-gray-800 text-white flex flex-col">
     <div class="flex items-center justify-center h-24">
       <div class="rounded-full bg-gray-200 w-20 h-20 flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
-        <img src="/UDHO%20SYSTEM/assets/PROFILE_SAMPLE.jpg" alt="Profile Picture" class="w-full h-full object-cover">
+        <img src="/assets/PROFILE_SAMPLE.jpg" alt="Profile Picture" class="w-full h-full object-cover">
       </div>
     </div>
     <nav class="mt-6">
       <ul>
         <li>
-          <a href="/UDHO%20SYSTEM/HOA/hoa_dashboard.php" class="sidebar-link flex items-center py-3 px-4 bg-blue-900">
+          <a href="hoa_dashboard.php" class="sidebar-link flex items-center py-3 px-4 active-link">
             <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/HOA/hoa_records.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="hoa_records.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-home mr-3"></i> HOA Management
           </a>
         </li>
-       
         <li>
-          <a href="/UDHO%20SYSTEM/Settings/setting_hoa.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="hoa_payment.php" class="sidebar-link flex items-center py-3 px-4 active-link">
+            <i class="fas fa-money-bill-wave mr-3"></i> Payment Records
+          </a>
+        </li>
+        <li>
+          <a href="/Settings/setting_hoa.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-cog mr-3"></i> Settings
           </a>
         </li>
@@ -75,7 +82,7 @@
     <header class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
       <h1 class="text-2xl font-bold text-gray-800">HOA Dashboard Overview</h1>
       <div class="flex items-center gap-2">
-        <img src="\UDHO%20SYSTEM\assets\UDHOLOGO.png" alt="Logo" class="h-8">
+        <img src="/assets/UDHOLOGO.png" alt="Logo" class="h-8">
         <span class="font-medium text-gray-700">Urban Development and Housing Office</span>
       </div>
     </header>
@@ -97,7 +104,7 @@
           </div>
         </div>
         <div class="mt-4">
-          <a href="/UDHO%20SYSTEM/HOA/hoa_records.php?status=active" class="text-blue-600 text-sm font-medium hover:text-blue-800">
+          <a href="hoa_records.php?status=active" class="text-blue-600 text-sm font-medium hover:text-blue-800">
             View all active HOAs <i class="fas fa-arrow-right ml-1"></i>
           </a>
         </div>
@@ -118,7 +125,7 @@
           </div>
         </div>
         <div class="mt-4">
-          <a href="/UDHO%20SYSTEM/HOA/hoa_records.php?status=inactive" class="text-blue-600 text-sm font-medium hover:text-blue-800">
+          <a href="hoa_records.php?status=inactive" class="text-blue-600 text-sm font-medium hover:text-blue-800">
             View all inactive HOAs <i class="fas fa-arrow-right ml-1"></i>
           </a>
         </div>
@@ -222,7 +229,7 @@
           </div>
         </a>
         
-        <a href="/UDHO%20SYSTEM/Backup_data/backup.php" class="p-4 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition">
+        <a href="Backup_data/backup.php" class="p-4 border border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition">
           <div class="flex items-center">
             <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
               <i class="fas fa-database"></i>
@@ -280,6 +287,14 @@
               filterHOA('all');
             }
           });
+          
+         
+// Nuclear option for back button
+history.pushState(null, null, location.href);
+window.onpopstate = function() {
+    history.go(1);
+};
+
 </script>
 </body>
 </html>

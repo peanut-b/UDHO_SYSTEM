@@ -3,11 +3,10 @@ session_start();
 
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'udho_db');
+define('DB_USER', 'u687661100_admin');
+define('DB_PASS', 'Udhodbms01');
+define('DB_NAME', 'u687661100_udho_db');
 
-// Error reporting (turn off in production)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -46,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Verify password (use password_verify() if passwords are hashed)
             if ($password === $user['password']) { // In production, use: password_verify($password, $user['password'])
                 // Authentication successful
-                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['logged_in'] = true;
@@ -59,25 +58,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // Redirect based on role
                 switch ($user['role']) {
-                    case 'Admin':
-                        header("Location: \UDHO%20SYSTEM\Admin\admin_dashboard.php");
-                        break;
-                    case 'Operation':
-                        header("Location: \UDHO%20SYSTEM\Operation\operation_dashboard.php");
-                        break;
-                    case 'Admin Executive':
-                        header("Location: \UDHO%20SYSTEM\Admin%20executive\adminexecutive_dashboard.php");
-                        break;
-                    case 'HOA':
-                        header("Location: \UDHO%20SYSTEM\HOA\hoa_dashboard.php");
-                        break;
-                    case 'Enumerator':
-                        header("Location: \UDHO%20SYSTEM\Operation\survey.php");
-                        break;
-                    default:
-                        header("Location: index.php");
-                }
-                exit();
+                        case 'Admin':
+                            header("Location: Admin/admin_dashboard.php");
+                            break;
+                        case 'Operation':
+                            header("Location: Operation/operation_dashboard.php");
+                            break;
+                        case 'Admin Executive':
+                            header("Location: Admin executive/adminexecutive_dashboard.php");
+                            break;
+                        case 'HOA':
+                            header("Location: HOA/hoa_dashboard.php");
+                            break;
+                        case 'Enumerator':
+                            header("Location: Operation/survey.php");
+                            break;
+                        default:
+                            header("Location: index.php");
+                    }
+                    exit();
             } else {
                 $error = "Invalid password";
             }
@@ -112,19 +111,19 @@ if (!isset($_SESSION['logged_in']) && isset($_COOKIE['remember_me'])) {
             // Redirect based on role
             switch ($user['role']) {
                 case 'Admin':
-                    header("Location: \UDHO%20SYSTEM\Admin\admin_dashboard.php");
+                    header("Location: Admin/admin_dashboard.php");
                     break;
                 case 'Operation':
-                    header("Location: \UDHO%20SYSTEM\Operation\operation_dashboard.php");
+                    header("Location: Operation/operation_dashboard.php");
                     break;
                 case 'Admin Executive':
-                    header("Location: \UDHO%20SYSTEM\Admin%20executive\adminexecutive_dashboard.php");
+                    header("Location: Admin executive/adminexecutive_dashboard.php");
                     break;
                 case 'HOA':
-                    header("Location: \UDHO%20SYSTEM\HOA\hoa_dashboard.php");
+                    header("Location: HOA/hoa_dashboard.php");
                     break;
                 case 'Enumerator':
-                    header("Location: \UDHO%20SYSTEM\Operation\survey.php");
+                    header("Location: Operation/survey.php");
                     break;
                 default:
                     header("Location: index.php");
@@ -276,9 +275,16 @@ if (!isset($_SESSION['logged_in']) && isset($_COOKIE['remember_me'])) {
               <i class="fas fa-lock text-gray-400"></i>
             </div>
             <input type="password" id="password" name="password" required
-                   class="pl-10 form-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-4 border">
+                   class="pl-10 pr-10 form-input block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 px-4 border">
+            
+            <!-- Eye Icon Button -->
+            <button type="button" id="togglePassword" 
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+              <i class="fas fa-eye"></i>
+            </button>
           </div>
         </div>
+
         
         <div>
           <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
@@ -370,6 +376,21 @@ if (!isset($_SESSION['logged_in']) && isset($_COOKIE['remember_me'])) {
         errorElement.remove();
       }, 5000);
     }
+    
+      document.getElementById('togglePassword').addEventListener('click', function () {
+        const passwordField = document.getElementById('password');
+        const icon = this.querySelector('i');
+    
+        if (passwordField.type === 'password') {
+          passwordField.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          passwordField.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      });
   </script>
 </body>
 </html>

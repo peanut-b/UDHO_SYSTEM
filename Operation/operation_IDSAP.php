@@ -100,16 +100,16 @@
               // Assuming you have a user profile picture path stored in a session or variable
               $profilePicture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default_profile.jpg';
               ?>
-              <img src="assets/profile_pictures/<?php echo htmlspecialchars($profilePicture); ?>" 
+              <img src="/assets/profile_pictures/<?php echo htmlspecialchars($profilePicture); ?>" 
                   alt="Profile Picture" 
                   class="w-full h-full object-cover"
-                  onerror="this.src='/UDHO%20SYSTEM/assets/PROFILE_SAMPLE.jpg'">
+                  onerror="this.src='/assets/PROFILE_SAMPLE.jpg'">
           </div>
       </div>
         <nav class="mt-6">
             <ul>
                 <li>
-                    <a href="\UDHO%20SYSTEM\Operation\operation_dashboard.php" class="block py-3 px-4 hover:bg-gray-700 flex items-center mobile-tap-target">
+                    <a href="operation_dashboard.php" class="block py-3 px-4 hover:bg-gray-700 flex items-center mobile-tap-target">
                         <i class="fas fa-tachometer-alt mr-3"></i> 
                         <span class="sidebar-text">Dashboard</span>
                     </a>
@@ -121,7 +121,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="\UDHO%20SYSTEM\Settings\setting_operation.php" class="block py-3 px-4 hover:bg-gray-700 flex items-center mobile-tap-target">
+                    <a href="Settings/setting_operation.php" class="block py-3 px-4 hover:bg-gray-700 flex items-center mobile-tap-target">
                         <i class="fas fa-cog mr-3"></i> 
                         <span class="sidebar-text">Settings</span>
                     </a>
@@ -141,7 +141,7 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
             <h1 class="text-xl md:text-2xl font-bold text-gray-800">IDSAP Survey System</h1>
             <div class="flex items-center gap-2">
-                <img src="\UDHO%20SYSTEM\assets\UDHOLOGO.png" alt="Logo" class="h-6 md:h-8">
+                <img src="/assets/UDHOLOGO.png" alt="Logo" class="h-6 md:h-8">
                 <span class="font-medium text-gray-700 text-sm md:text-base">Urban Development and Housing Office</span>
             </div>
         </div>

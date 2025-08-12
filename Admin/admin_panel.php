@@ -3,9 +3,9 @@ session_start();
 
 // Database configuration
 $servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "udho_db";
+$username = "u687661100_admin";
+$password = "Udhodbms01";
+$dbname = "u687661100_udho_db";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -114,7 +114,7 @@ if ($result->num_rows > 0) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document Tracking System</title>
+  <title>Admin Dashboard | Document Tracking System</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
@@ -438,28 +438,28 @@ if ($result->num_rows > 0) {
   <div class="w-64 bg-gray-800 text-white flex flex-col">
     <div class="flex items-center justify-center h-24">
       <div class="rounded-full bg-gray-200 w-20 h-20 flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
-        <img src="/UDHO%20SYSTEM/assets/PROFILE_SAMPLE.jpg" alt="Profile Picture" class="w-full h-full object-cover">
+        <img src="/assets/PROFILE_SAMPLE.jpg" alt="Profile Picture" class="w-full h-full object-cover">
       </div>
     </div>
     <nav class="mt-6">
       <ul>
         <li>
-          <a href="/UDHO%20SYSTEM/Admin/admin_dashboard.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="admin_dashboard.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/Admin/admin_records.php" class="sidebar-link flex items-center py-3 px-4 active-link bg-gray-700">
+          <a href="admin_records.php" class="sidebar-link flex items-center py-3 px-4 active-link bg-gray-700">
             <i class="fas fa-file-alt mr-3"></i> Routing Slip
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/Settings/setting_admin.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="Settings/setting_admin.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-cog mr-3"></i> Settings
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/logout.php" class="sidebar-link flex items-center py-3 px-4 mt-10">
+          <a href="#" class="sidebar-link flex items-center py-3 px-4 mt-10">
             <i class="fas fa-sign-out-alt mr-3"></i> Logout
           </a>
         </li>
@@ -472,7 +472,7 @@ if ($result->num_rows > 0) {
     <header class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
       <h1 class="text-2xl font-bold text-gray-800">Document Tracking System</h1>
       <div class="flex items-center gap-2">
-        <img src="\UDHO%20SYSTEM\assets\UDHOLOGO.png" alt="Logo" class="h-8">
+        <img src="/assets/UDHOLOGO.png" alt="Logo" class="h-8">
         <span class="font-medium text-gray-700">Urban Development and Housing Office</span>
       </div>
     </header>

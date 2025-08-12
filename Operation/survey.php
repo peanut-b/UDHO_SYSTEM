@@ -1,3 +1,168 @@
+<?php
+session_start();
+// Database configuration
+$servername = "localhost";
+$username = "u687661100_admin";
+$password = "Udhodbms01";
+$dbname = "u687661100_udho_db";
+
+// Create connection with error reporting
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Redirect to login if not logged in
+if (!isset($_SESSION['logged_in'])) {
+    header("Location: ../index.php");
+    exit();
+}
+
+// Set last activity time for timeout (30 minutes)
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 1800)) {
+    session_unset();
+    session_destroy();
+    header("Location: ../index.php?timeout=1");
+    exit();
+}
+$_SESSION['LAST_ACTIVITY'] = time();
+
+// Get enumerator data from session
+$enumerator_name = $_SESSION['username'] ?? 'Unknown Enumerator';
+$enumerator_id = $_SESSION['id'] ?? 'EN-00000';
+
+
+// Create table if not exists
+$conn->query("
+CREATE TABLE IF NOT EXISTS survey_responses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    respondent_name VARCHAR(255),
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    location_lat DECIMAL(10,8),
+    location_lng DECIMAL(11,8),
+    answers JSON,
+    signature LONGTEXT
+) ENGINE=InnoDB
+");
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_survey'])) {
+    // Grab known fields
+    $name = $_POST['respondent_name'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $phone = $_POST['phone'] ?? '';
+    $location_lat = $_POST['location_lat'] ?? null;
+    $location_lng = $_POST['location_lng'] ?? null;
+    $signature = $_POST['signature'] ?? '';
+
+    // Grab all other POST fields as answers (except known fields)
+    $excluded = ['respondent_name', 'email', 'phone', 'location_lat', 'location_lng', 'signature', 'submit_survey'];
+    $answers_data = [];
+    foreach ($_POST as $key => $value) {
+        if (!in_array($key, $excluded)) {
+            $answers_data[$key] = $value;
+        }
+    }
+    $answers_json = json_encode($answers_data, JSON_UNESCAPED_UNICODE);
+
+    // Insert into DB
+    $stmt = $conn->prepare("
+        INSERT INTO survey_responses (respondent_name, email, phone, location_lat, location_lng, answers, signature)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ");
+    $stmt->bind_param("sssddss", $name, $email, $phone, $location_lat, $location_lng, $answers_json, $signature);
+
+    if ($stmt->execute()) {
+        echo "<script>alert('Survey submitted successfully!');</script>";
+    } else {
+        echo "<script>alert('Error: " . $stmt->error . "');</script>";
+    }
+    $stmt->close();
+}
+?>
+<?php
+session_start();
+// Database configuration
+$servername = "localhost";
+$username = "u687661100_admin";
+$password = "Udhodbms01";
+$dbname = "u687661100_udho_db";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    http_response_code(500);
+    echo json_encode(["error" => "Database connection failed"]);
+    exit;
+}
+
+// If POST JSON, save survey data
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!$data) {
+        http_response_code(400);
+        echo json_encode(["error" => "Invalid JSON"]);
+        exit;
+    }
+
+    // Ensure table exists
+    $conn->query("CREATE TABLE IF NOT EXISTS survey_responses (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        enumerator_name VARCHAR(255),
+        enumerator_id VARCHAR(255),
+        ud_code VARCHAR(50),
+        tag_number VARCHAR(50),
+        address TEXT,
+        barangay VARCHAR(255),
+        city VARCHAR(255),
+        region VARCHAR(255),
+        location_lat DOUBLE,
+        location_lng DOUBLE,
+        photos LONGTEXT,
+        signature LONGTEXT,
+        answers LONGTEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    $stmt = $conn->prepare("INSERT INTO survey_responses (
+        enumerator_name, enumerator_id, ud_code, tag_number,
+        address, barangay, city, region, location_lat, location_lng,
+        photos, signature, answers
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+    $photos_json = json_encode($data['photos'] ?? []);
+    $answers_json = json_encode($data['answers'] ?? []);
+    $signature_data = $data['signature'] ?? '';
+
+    $stmt->bind_param(
+        "ssssssssddssss",
+        $data['enumerator_name'],
+        $data['enumerator_id'],
+        $data['ud_code'],
+        $data['tag_number'],
+        $data['address'],
+        $data['barangay'],
+        $data['city'],
+        $data['region'],
+        $data['location']['lat'],
+        $data['location']['lng'],
+        $photos_json,
+        $signature_data,
+        $answers_json
+    );
+
+    if ($stmt->execute()) {
+        echo json_encode(["success" => true, "id" => $stmt->insert_id]);
+    } else {
+        http_response_code(500);
+        echo json_encode(["error" => $stmt->error]);
+    }
+    exit;
+}
+?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -95,10 +260,6 @@
             font-size: 14px;
             cursor: pointer;
             margin-right: 8px;
-        }
-        
-        .location-confirm-btn:hover {
-            background-color: #e8eaed;
         }
         
         .location-confirm-btn.confirmed {
@@ -525,8 +686,6 @@
 </head>
 <body class="bg-gray-100 p-2 md:p-4 lg:p-8">
     
-        
-
     <!-- Camera Modal -->
     <div id="camera-modal" class="camera-modal">
         <div class="camera-container">
@@ -578,8 +737,6 @@
         </div>
     </div>
 
-    
-
     <div id="form-container" class="form-container bg-white rounded-lg mx-2 md:mx-auto">
         <div class="p-4 md:p-6 lg:p-8">
             <div class="form-header mb-6 md:mb-8">
@@ -587,15 +744,15 @@
                 <p class="form-description">This survey collects information about housing conditions and needs for urban development planning.</p>
             </div>
 
-            <!-- Add this after the form-header div -->
+            <!-- Survey Meta Information -->
             <div class="survey-meta">
                 <div class="survey-meta-item">
-                    <div>Enumerator: <span id="enumerator-name">John Doe</span></div>
-                    <div id="form-enumerator-name">John Doe</div>
+                    <div class="survey-meta-label">Enumerator:</div>
+                    <div id="enumerator-name"><?php echo htmlspecialchars($enumerator_name); ?></div>
                 </div>
                 <div class="survey-meta-item">
                     <div class="survey-meta-label">Enumerator ID:</div>
-                    <div>ID: <span id="enumerator-id">EN-12345</span></div>
+                    <div id="enumerator-id"><?php echo htmlspecialchars($enumerator_id); ?></div>
                 </div>
                 <div class="survey-meta-item">
                     <div class="survey-meta-label">Survey Started:</div>
@@ -606,10 +763,9 @@
                     <div id="survey-end-time">-</div>
                 </div>
                 <div class="survey-meta-item">
-                    <button id="logout-button" class="logout-btn">Logout</button>
+                    <button id="logout-btn" class="logout-btn">Logout</button>
                 </div>
             </div>
-
 
             <!-- UD Code and TAG Number Section -->
             <div id="tag-number-section" class="mb-6">
@@ -642,14 +798,10 @@
                             <svg id="tag-number-barcode" class="barcode-svg"></svg>
                         </div>
                     </div>
-            
-                    
                 </div>
             </div>
-
             
-            
-            <!-- Location Section (Moved to top) -->
+            <!-- Location Section -->
             <div id="location-section" class="mb-6 md:mb-8 p-4 md:p-6 bg-white rounded-lg border border-gray-200">
                 <h2 class="section-title">Location Information</h2>
                 <div class="mb-4">
@@ -715,26 +867,25 @@
                 </div>
             </div>
 
-
             <!-- Form Pages -->
             <div id="form-page-1" class="form-page">
                 <!-- Section I: Personal Data -->
-                        <div class="mb-4 md:mb-6">
-                <p class="question-title required-field">Survey Type</p>
-                <div class="relative">
-                    <select id="survey-type" class="form-control" required>
-                        <option value="">Select Survey Type</option>
-                        <option value="IDSAP-FIRE VICTIM">IDSAP-FIRE VICTIM</option>
-                        <option value="IDSAP-FLOOD">IDSAP-FLOOD</option>
-                        <option value="IDSAP-EARTHQUAKE">IDSAP-EARTHQUAKE</option>
-                        <option value="CENSUS-PDC">CENSUS-PDC</option>
-                        <option value="CENSUS-HOA">CENSUS-HOA</option>
-                        <option value="CENSUS-WATERWAYS">CENSUS-WATERWAYS</option>
-                        <option value="OTHERS">OTHERS (Please specify)</option>
-                    </select>
-                </div>
-                <input type="text" id="other-survey-type" class="form-control mt-2 hidden" placeholder="Please specify survey type">
-            </div>        
+                <div class="mb-4 md:mb-6">
+                    <p class="question-title required-field">Survey Type</p>
+                    <div class="relative">
+                        <select id="survey-type" class="form-control" required>
+                            <option value="">Select Survey Type</option>
+                            <option value="IDSAP-FIRE VICTIM">IDSAP-FIRE VICTIM</option>
+                            <option value="IDSAP-FLOOD">IDSAP-FLOOD</option>
+                            <option value="IDSAP-EARTHQUAKE">IDSAP-EARTHQUAKE</option>
+                            <option value="CENSUS-PDC">CENSUS-PDC</option>
+                            <option value="CENSUS-HOA">CENSUS-HOA</option>
+                            <option value="CENSUS-WATERWAYS">CENSUS-WATERWAYS</option>
+                            <option value="OTHERS">OTHERS (Please specify)</option>
+                        </select>
+                    </div>
+                    <input type="text" id="other-survey-type" class="form-control mt-2 hidden" placeholder="Please specify survey type">
+                </div>        
 
                 <!-- Personal Data Section -->
                 <div class="mb-6 md:mb-8">
@@ -989,7 +1140,6 @@
 
                 </div>
                     
-                    <!-- Replace the existing table in Section IV with this -->
                 <div class="responsive-table mb-4">
                     <table id="member-table" class="min-w-full bg-white border border-gray-200 text-sm">
                         <thead>
@@ -1126,56 +1276,52 @@
                     <button id="prev-page-3-btn" class="form-button bg-gray-400 hover:bg-gray-500 text-white font-medium">
                         Previous
                     </button>
-                    <button id="submit-form-btn" class="form-button bg-indigo-600 hover:bg-indigo-700 text-white font-medium">
+                    <button type="submit" name="submit" id="submit-form-btn" class="form-button bg-indigo-600 hover:bg-indigo-700 text-white font-medium">
                         Submit Form
                     </button>
+
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Thank You Page -->
-    <!-- Update the thank-you-page div -->
-        <div id="thank-you-page" class="form-page hidden">
-            <div class="text-center p-8 md:p-12">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">Thank You!</h2>
-                <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
-                    Thank you for completing the survey. Your TAG number is:
-                </p>
-                
-                <!-- TAG Number Display -->
-                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 max-w-md mx-auto mb-6">
-                    <h3 class="text-xl font-bold mb-2" id="final-tag-number"></h3>
-                    <div class="mb-4">
-                        <div class="barcode-label mb-2">TAG Number Barcode</div>
-                        <svg id="final-tag-barcode" class="w-full h-16"></svg>
-                    </div>
-                    <div class="survey-meta-item">
-                        <div class="survey-meta-label">Enumerator:</div>
-                        <div id="thankyou-enumerator-name">John Doe</div>
-                    </div>
-                    <div class="survey-meta-item">
-                        <div class="survey-meta-label">Completed On:</div>
-                        <div id="thankyou-completion-time"><?php echo date('Y-m-d H:i:s'); ?></div>
-                    </div>
-                    <div class="survey-meta-item">
-                        <div class="survey-meta-label">Duration:</div>
-                        <div id="thankyou-duration">-</div>
-                    </div>
-                    
+    <div id="thank-you-page" class="form-page hidden">
+        <div class="text-center p-8 md:p-12">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-4">Thank You!</h2>
+            <p class="text-gray-600 mb-6 max-w-2xl mx-auto">
+                Thank you for completing the survey. Your TAG number is:
+            </p>
+            
+            <!-- TAG Number Display -->
+            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 max-w-md mx-auto mb-6">
+                <h3 class="text-xl font-bold mb-2" id="final-tag-number"></h3>
+                <div class="mb-4">
+                    <div class="barcode-label mb-2">TAG Number Barcode</div>
+                    <svg id="final-tag-barcode" class="w-full h-16"></svg>
                 </div>
-
-                <!-- Survey Completion Details -->
-                
-
-                <button id="return-home-btn" class="form-button bg-indigo-600 hover:bg-indigo-700 text-white font-medium">
-                    Return to Home
-                </button>
+                <div class="survey-meta-item">
+                    <div class="survey-meta-label">Enumerator:</div>
+                    <div id="thankyou-enumerator-name"><?php echo htmlspecialchars($enumerator_name); ?></div>
+                </div>
+                <div class="survey-meta-item">
+                    <div class="survey-meta-label">Completed On:</div>
+                    <div id="thankyou-completion-time"><?php echo date('Y-m-d H:i:s'); ?></div>
+                </div>
+                <div class="survey-meta-item">
+                    <div class="survey-meta-label">Duration:</div>
+                    <div id="thankyou-duration">-</div>
+                </div>
             </div>
+
+            <button id="return-home-btn" class="form-button bg-indigo-600 hover:bg-indigo-700 text-white font-medium">
+                Return to Home
+            </button>
         </div>
+    </div>
 
     <!-- Load Leaflet JS for maps -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
@@ -1275,7 +1421,6 @@
             
             signaturePadContext.putImageData(imageData, 0, 0);
         }
-        
 
         // Initialize map centered on Pasay City
         function initMap() {
@@ -1463,8 +1608,6 @@
         // Reset form to default state
         function resetForm() {
             // Reset form fields
-
-            // Add to resetForm() function
             document.getElementById('survey-type').value = '';
             document.getElementById('other-survey-type').value = '';
             document.getElementById('other-survey-type').classList.add('hidden');
@@ -1539,7 +1682,6 @@
             // Reset confirmation checkboxes
             document.getElementById('data-accuracy-checkbox').checked = false;
             document.getElementById('privacy-policy-checkbox').checked = false;
-
             
             // Reset location
             if (marker) {
@@ -1711,44 +1853,41 @@
             }
         }
 
-        // Function to auto-format tagging number (e.g., "2025-186-001")
-            
-
         // Form navigation functions
         function showPage(pageIndex) {
-    console.log(`Showing page ${pageIndex}`);
-    
-    // Hide thank you page when showing other pages
-    thankYouPage.classList.add('hidden');
-    
-    // Hide all pages
-    formPages.forEach((page, i) => {
-        page.classList.add('hidden');
-    });
-    
-    // Show the requested page
-    formPages[pageIndex].classList.remove('hidden');
-    
-    currentPage = pageIndex;
-    
-    // Show location and TAG number sections only on first page
-        if (pageIndex === 0) {
-            locationSection.classList.remove('hidden');
-            tagNumberSection.classList.remove('hidden');
-            if (locationConfirmed) {
-                locationDetails.classList.remove('hidden');
+            console.log(`Showing page ${pageIndex}`);
+            
+            // Hide thank you page when showing other pages
+            thankYouPage.classList.add('hidden');
+            
+            // Hide all pages
+            formPages.forEach((page, i) => {
+                page.classList.add('hidden');
+            });
+            
+            // Show the requested page
+            formPages[pageIndex].classList.remove('hidden');
+            
+            currentPage = pageIndex;
+            
+            // Show location and TAG number sections only on first page
+            if (pageIndex === 0) {
+                locationSection.classList.remove('hidden');
+                tagNumberSection.classList.remove('hidden');
+                if (locationConfirmed) {
+                    locationDetails.classList.remove('hidden');
+                }
+            } else {
+                locationSection.classList.add('hidden');
+                tagNumberSection.classList.add('hidden');
+                locationDetails.classList.add('hidden');
             }
-        } else {
-            locationSection.classList.add('hidden');
-            tagNumberSection.classList.add('hidden');
-            locationDetails.classList.add('hidden');
+            
+            // Initialize signature pad when showing page 3
+            if (pageIndex === 2) {
+                initializeSignaturePad();
+            }
         }
-        
-        // Initialize signature pad when showing page 3
-        if (pageIndex === 2) {
-            initializeSignaturePad();
-        }
-    }
 
         function nextPage() {
             if (currentPage < formPages.length - 1) {
@@ -1857,21 +1996,21 @@
         confirmLocationBtn.addEventListener('click', confirmLocation);
         
         saveManualLocationBtn.addEventListener('click', () => {
-                const address = document.getElementById('manual-address').value;
-                const barangay = document.getElementById('manual-barangay').value;
-                const zone = document.getElementById('manual-zone').value;
-                
-                if (!address || !barangay) {
-                    alert('Please enter at least address and barangay');
-                    return;
-                }
-                
-                document.getElementById('street').value = address;
-                document.getElementById('barangay').value = barangay;
-                
-                manualLocationDiv.classList.add('hidden');
-                locationText.textContent = `${address}, ${barangay}, Pasay City`;
-            });
+            const address = document.getElementById('manual-address').value;
+            const barangay = document.getElementById('manual-barangay').value;
+            const zone = document.getElementById('manual-zone').value;
+            
+            if (!address || !barangay) {
+                alert('Please enter at least address and barangay');
+                return;
+            }
+            
+            document.getElementById('street').value = address;
+            document.getElementById('barangay').value = barangay;
+            
+            manualLocationDiv.classList.add('hidden');
+            locationText.textContent = `${address}, ${barangay}, Pasay City`;
+        });
 
         // Confirmation modal
         submitFormBtn.addEventListener('click', () => {
@@ -2099,16 +2238,6 @@
                     alert('You must have at least one household member (the head)');
                 }
             });
-
-            
-            // Add event listener to the remove button
-            row.querySelector('.remove-member-btn').addEventListener('click', () => {
-                if (memberTableBody.children.length > 1) {
-                    row.remove();
-                } else {
-                    alert('You must have at least one household member (the head)');
-                }
-            });
         }
 
         addMemberBtn.addEventListener('click', addMemberRow);
@@ -2135,7 +2264,7 @@
             });
         });
 
-        // Add this to your JavaScript section
+        // Survey type change handler
         document.getElementById('survey-type').addEventListener('change', function() {
             const otherInput = document.getElementById('other-survey-type');
             if (this.value === 'OTHERS') {
@@ -2186,26 +2315,23 @@
         // Add logout functionality
         document.getElementById('logout-btn').addEventListener('click', function() {
             if (confirm('Are you sure you want to logout?')) {
-                // Here you would typically redirect to logout page
-                // For this example, we'll just reload
-                window.location.href = 'login.html';
+                // Redirect to logout page which will destroy the session
+                window.location.href = '../logout.php';
             }
         });
 
-        // Initialize enumerator info (in a real app, this would come from your auth system)
+        // Initialize enumerator info from PHP variables
         document.addEventListener('DOMContentLoaded', () => {
-            // These values would normally come from your authentication system
-            const enumeratorName = "John Doe";
-            const enumeratorId = "EN-12345";
+            // Get enumerator info from the HTML elements
+            const enumeratorName = document.getElementById('enumerator-name').textContent;
+            const enumeratorId = document.getElementById('enumerator-id').textContent;
             
             // Set enumerator info in all locations
-            document.getElementById('enumerator-name').textContent = enumeratorName;
-            document.getElementById('enumerator-id').textContent = enumeratorId;
             document.getElementById('form-enumerator-name').textContent = enumeratorName;
-            document.getElementById('form-enumerator-id').textContent = enumeratorId;
+            document.getElementById('thankyou-enumerator-name').textContent = enumeratorName;
             
             // Set survey start time
-            document.getElementById('survey-start-time').textContent = surveyStartTime.toLocaleString();
+            document.getElementById('survey-start-time').textContent = new Date().toLocaleString();
             
             // Rest of your existing initialization code...
         });

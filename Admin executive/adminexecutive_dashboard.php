@@ -1,3 +1,43 @@
+<?php
+session_start();
+// Database configuration
+$servername = "localhost";
+$username = "u687661100_admin";
+$password = "Udhodbms01";
+$dbname = "u687661100_udho_db";
+
+// Create connection with error reporting
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Redirect to login if not logged in
+if (!isset($_SESSION['logged_in'])) {
+    header("Location: ../index.php");
+    exit();
+}
+
+// Start session and prevent caching
+session_start();
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
+// Redirect to login if not logged in
+if (!isset($_SESSION['logged_in'])) {
+    header("Location: ../index.php");
+    exit();
+}
+
+
+// Set last activity time for timeout (30 minutes)
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 1800)) {
+    session_unset();
+    session_destroy();
+    header("Location: ../index.php?timeout=1");
+    exit();
+}
+$_SESSION['LAST_ACTIVITY'] = time();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -44,36 +84,51 @@
               // Assuming you have a user profile picture path stored in a session or variable
               $profilePicture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default_profile.jpg';
               ?>
-              <img src="assets/profile_pictures/<?php echo htmlspecialchars($profilePicture); ?>" 
+              <img src="/assets/profile_pictures/<?php echo htmlspecialchars($profilePicture); ?>" 
                   alt="Profile Picture" 
                   class="w-full h-full object-cover"
-                  onerror="this.src='/UDHO%20SYSTEM/assets/PROFILE_SAMPLE.jpg'">
+                  onerror="this.src='assets/PROFILE_SAMPLE.jpg'">
           </div>
   </div>
     <nav class="mt-6">
       <ul>
         <li>
-          <a href="/UDHO%20SYSTEM/Admin%20executive/adminexecutive_dashboard.php" class="sidebar-link flex items-center py-3 px-4 active-link">
+          <a href="adminexecutive_dashboard.php" class="sidebar-link flex items-center py-3 px-4 ">
             <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/Admin%20executive/backup.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="/Operation/operation_dashboard.php" class="sidebar-link flex items-center py-3 px-4 a">
+            <i class="fa-solid fa-location-crosshairs mr-3"></i> Operation
+          </a>
+        </li>
+        <li>
+          <a href="/Admin/admin_dashboard.php" class="sidebar-link flex items-center py-3 px-4 ">
+            <i class="fa-solid fa-user-tie mr-3"></i> Admin
+          </a>
+        </li>
+        <li>
+          <a href="/HOA/hoa_dashboard.php" class="sidebar-link flex items-center py-3 px-4 ">
+           <i class="fa-solid fa-house mr-3"></i> HOA
+          </a>
+        </li>
+        <li>
+          <a href="backup.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-database mr-3"></i> Backup Data
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/Admin%20executive/employee.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="employee.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-users mr-3"></i> Employees
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/Settings/setting_executive.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href=".settings.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-cog mr-3"></i> Settings
           </a>
         </li>
         <li>
-          <a href="#" class="sidebar-link flex items-center py-3 px-4 mt-10">
+          <a href="../logout.php" class="sidebar-link flex items-center py-3 px-4 mt-10">
             <i class="fas fa-sign-out-alt mr-3"></i> Logout
           </a>
         </li>
@@ -86,7 +141,7 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
       <h1 class="text-2xl font-bold text-gray-800">Admin Executive Dashboard</h1>
       <div class="flex items-center gap-2">
-        <img src="\UDHO%20SYSTEM\assets\UDHOLOGO.png" alt="Logo" class="h-8">
+        <img src="/assets/UDHOLOGO.png" alt="Logo" class="h-8">
         <span class="font-medium text-gray-700">Urban Development and Housing Office</span>
       </div>
     </div>
@@ -626,6 +681,14 @@
 
     // Initialize with operation data visible
     showData('operation');
+    
+  
+// Nuclear option for back button
+history.pushState(null, null, location.href);
+window.onpopstate = function() {
+    history.go(1);
+};
+
   </script>
 </body>
 

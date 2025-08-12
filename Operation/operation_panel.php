@@ -121,7 +121,7 @@
   <div class="w-64 bg-gray-800 text-white flex flex-col">
     <div class="flex items-center justify-center h-24">
       <div class="rounded-full bg-gray-200 w-20 h-20 flex items-center justify-center overflow-hidden border2 border-white shadow-md">
-        <img src="/UDHO%20SYSTEM/assets/PROFILE_SAMPLE.jpg" 
+        <img src="/assets/PROFILE_SAMPLE.jpg" 
              alt="Profile Picture" 
              class="w-full h-full object-cover">
       </div>
@@ -129,12 +129,12 @@
     <nav class="mt-6">
       <ul>
         <li>
-          <a href="\UDHO%20SYSTEM\Operation\operation_dashboard.php" class="flex items-center py-2.5 px-4 hover:bg-gray-700">
+          <a href="operation_dashboard.php" class="flex items-center py-2.5 px-4 hover:bg-gray-700">
             <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
           </a>
         </li>
         <li>
-          <a href="\UDHO%20SYSTEM\Settings\setting_operation.php" class="flex items-center py-2.5 px-4 hover:bg-gray-700">
+          <a href="Settings/setting_operation.php" class="flex items-center py-2.5 px-4 hover:bg-gray-700">
             <i class="fas fa-cog mr-3"></i> Settings
           </a>
         </li>
@@ -154,7 +154,7 @@
       <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
         <input type="text" placeholder="Search" class="w-full md:w-64 px-3 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-sm" />
         <div class="flex items-center gap-2">
-          <img src="\UDHO%20SYSTEM\assets\UDHOLOGO.png" alt="Logo" class="h-6">
+          <img src="/assets/UDHOLOGO.png" alt="Logo" class="h-6">
           <span class="font-medium text-gray-700 text-sm">Urban Development and Housing Office</span>
         </div>
       </div>

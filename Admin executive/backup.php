@@ -169,31 +169,31 @@
               // Assuming you have a user profile picture path stored in a session or variable
               $profilePicture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default_profile.jpg';
               ?>
-              <img src="assets/profile_pictures/<?php echo htmlspecialchars($profilePicture); ?>" 
+              <img src="/assets/profile_pictures/<?php echo htmlspecialchars($profilePicture); ?>" 
                   alt="Profile Picture" 
                   class="w-full h-full object-cover"
-                  onerror="this.src='/UDHO%20SYSTEM/assets/PROFILE_SAMPLE.jpg'">
+                  onerror="this.src='/assets/PROFILE_SAMPLE.jpg'">
           </div>
   </div>
     <nav class="mt-6">
       <ul>
         <li>
-          <a href="/UDHO%20SYSTEM/Admin%20executive/adminexecutive_dashboard.php" class="sidebar-link flex items-center py-3 px-4 active-link">
+          <a href="adminexecutive_dashboard.php" class="sidebar-link flex items-center py-3 px-4 active-link">
             <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/Admin%20executive/backup.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="backup.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-database mr-3"></i> Backup Data
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/Admin%20executive/employee.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="employee.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-users mr-3"></i> Employees
           </a>
         </li>
         <li>
-          <a href="/UDHO%20SYSTEM/Settings/setting_executive.php" class="sidebar-link flex items-center py-3 px-4">
+          <a href="Settings/setting_executive.php" class="sidebar-link flex items-center py-3 px-4">
             <i class="fas fa-cog mr-3"></i> Settings
           </a>
         </li>
@@ -211,7 +211,7 @@
     <header class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
       <h1 class="text-2xl font-bold text-gray-800">Database Management</h1>
       <div class="flex items-center gap-2">
-        <img src="\UDHO%20SYSTEM\assets\UDHOLOGO.png" alt="Logo" class="h-8">
+        <img src="/assets/UDHOLOGO.png" alt="Logo" class="h-8">
         <span class="font-medium text-gray-700">Urban Development and Housing Office</span>
       </div>
     </header>

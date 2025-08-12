@@ -1,3 +1,150 @@
+
+<?php
+session_start();
+
+
+// Database configuration
+$servername = "localhost";
+$username = "u687661100_admin";
+$password = "Udhodbms01";
+$dbname = "u687661100_udho_db";
+
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Add this at the top of your script
+
+date_default_timezone_set('Asia/Manila'); // Set to Philippines timezone
+
+// Database operations
+// Database operations
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['action'])) {
+        switch ($_POST['action']) {
+            case 'save_certificate':
+                $name = $conn->real_escape_string($_POST['name']);
+                $address = $conn->real_escape_string($_POST['address']);
+                $controlNumber = $conn->real_escape_string($_POST['control_number']);
+                
+                // First check if control number exists
+                $checkControlSql = "SELECT COUNT(*) as count FROM certificates WHERE control_number = '$controlNumber'";
+                $checkResult = $conn->query($checkControlSql);
+                $row = $checkResult->fetch_assoc();
+                
+                if ($row['count'] > 0) {
+                    echo json_encode(['success' => false, 'message' => 'Control number already exists']);
+                    exit;
+                }
+                
+                // Check if applicant has reached limit (2 certificates)
+                $checkApplicantSql = "SELECT COUNT(*) as count FROM certificates WHERE name = '$name' AND address = '$address'";
+                $checkApplicantResult = $conn->query($checkApplicantSql);
+                $applicantRow = $checkApplicantResult->fetch_assoc();
+                
+                if ($applicantRow['count'] >= 2) {
+                    echo json_encode(['success' => false, 'message' => 'Applicant has reached maximum certificate requests (2)']);
+                    exit;
+                }
+                
+                // Get current date in MySQL format
+                $currentDate = date('Y-m-d H:i:s');
+                error_log("Attempting to save certificate with date: " . $currentDate); // Debug logging
+                
+                // Insert new certificate with current date
+                $sql = "INSERT INTO certificates (
+                            name, 
+                            address, 
+                            control_number, 
+                            date_issued, 
+                            created_at, 
+                            request_count, 
+                            previous_request_date
+                        ) VALUES (
+                            '$name', 
+                            '$address', 
+                            '$controlNumber', 
+                            '$currentDate',
+                            '$currentDate',
+                            (SELECT COUNT(*) + 1 FROM (SELECT * FROM certificates WHERE name = '$name' AND address = '$address') AS temp),
+                            (SELECT IFNULL(MAX(date_issued), NULL) FROM (SELECT * FROM certificates WHERE name = '$name' AND address = '$address') AS temp2)
+                        )";
+                
+                if ($conn->query($sql) === TRUE) {
+                    error_log("Certificate saved successfully with date: " . $currentDate); // Debug logging
+                    echo json_encode(['success' => true, 'message' => 'Certificate saved successfully']);
+                } else {
+                    error_log("Database error: " . $conn->error); // Debug logging
+                    echo json_encode(['success' => false, 'message' => 'Error saving certificate: ' . $conn->error]);
+                }
+                exit;
+        }
+    }
+}
+
+// Handle GET requests
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Check for duplicate control number
+    if (isset($_GET['check_duplicate']) && isset($_GET['control_number'])) {
+        $controlNumber = $conn->real_escape_string($_GET['control_number']);
+        $sql = "SELECT COUNT(*) as count FROM certificates WHERE control_number = '$controlNumber'";
+        $result = $conn->query($sql);
+        $row = $result->fetch_assoc();
+        
+        echo json_encode(['exists' => $row['count'] > 0]);
+        exit;
+    }
+    
+    // Get all certificates for database view
+    if (isset($_GET['get_certificates'])) {
+        $sql = "SELECT id, name, address, control_number, DATE_FORMAT(date_issued, '%M %d, %Y') as date_issued, 
+                created_at FROM certificates ORDER BY created_at DESC";
+        $result = $conn->query($sql);
+        $certificates = [];
+        
+        while ($row = $result->fetch_assoc()) {
+            $certificates[] = $row;
+        }
+        
+        echo json_encode($certificates);
+        exit;
+    }
+    
+    // Verify applicant
+    if (isset($_GET['verify_applicant'])) {
+        $name = $conn->real_escape_string($_GET['name']);
+        
+        
+        // Get applicant history
+        $sql = "SELECT id, name, address, control_number, 
+                DATE_FORMAT(date_issued, '%M %d, %Y') as date_issued 
+                FROM certificates 
+                WHERE name LIKE '%$name%' AND address LIKE '%$address%' 
+                ORDER BY date_issued DESC";
+        
+        $result = $conn->query($sql);
+        $history = [];
+        $count = 0;
+        
+        while ($row = $result->fetch_assoc()) {
+            $history[] = $row;
+            $count++;
+        }
+        
+        echo json_encode([
+            'count' => $count,
+            'history' => $history
+        ]);
+        exit;
+    }
+}
+    
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,10 +171,15 @@
         }
 
         .justified-text {
-            text-align: justify;
-            margin: 15px 0;
-            text-indent: 50px;
-        }
+        text-align: justify;
+        margin: 15px 0;
+        text-indent: 50px;
+        line-height: 1.6; /* Add this for better readability */
+    }
+
+.justified-text p {
+    margin-bottom: 20px; /* Add space between paragraphs */
+}
 
         .header-container {
             display: flex;
@@ -165,6 +317,45 @@
             color: #dc3545;
         }
 
+        /* Error modal styles */
+        .error-modal {
+            background-color: #f8d7da;
+            border-left: 6px solid #dc3545;
+            max-width: 500px;
+        }
+
+        .error-icon {
+            color: #dc3545;
+            font-size: 2rem;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal-content {
+            margin: 15% auto;
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal.show {
+            display: block;
+        }
+
         @media print {
             body {
                 margin: 0;
@@ -227,6 +418,35 @@
             from { opacity: 1; }
             to { opacity: 0; }
         }
+        
+        /* Add these to your existing CSS */
+        #verificationStatus {
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        #applicantHistoryModal .modal-content {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .history-table th, .history-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .history-table th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex">
@@ -243,10 +463,10 @@
               <?php
               $profilePicture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default_profile.jpg';
               ?>
-              <img src="assets/profile_pictures/<?php echo htmlspecialchars($profilePicture); ?>" 
+              <img src="/assets/profile_pictures/<?php echo htmlspecialchars($profilePicture); ?>" 
                   alt="Profile Picture" 
                   class="w-full h-full object-cover"
-                  onerror="this.src='/UDHO%20SYSTEM/assets/PROFILE_SAMPLE.jpg'">
+                  onerror="this.src='/assets/PROFILE_SAMPLE.jpg'">
           </div>
       </div>
         <nav class="mt-6">
@@ -256,13 +476,22 @@
                         <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
                     </a>
                 </li>
+                 <li>
+                    <a href="meralco.php" class="flex items-center py-2.5 px-4 hover:bg-gray-700">
+                        <i class="fa-solid fa-file mr-3"></i> Certificate
+                    </a>
                 <li>
-                    <a href="/UDHO%20SYSTEM/Settings/setting_operation.php" class="flex items-center py-2.5 px-4 hover:bg-gray-700">
+                    <a href="meralco_database.php" class="flex items-center py-2.5 px-4 hover:bg-gray-700">
+                        <i class="fa-solid fa-database mr-3"></i> Database
+                    </a>
+                </li>
+                <li>
+                    <a href="Settings/setting_operation.php" class="flex items-center py-2.5 px-4 hover:bg-gray-700">
                         <i class="fas fa-cog mr-3"></i> Settings
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="flex items-center py-2.5 px-4 hover:bg-gray-700 mt-10">
+                    <a href="#" id="logoutBtn" class="flex items-center py-2.5 px-4 hover:bg-gray-700 mt-10">
                         <i class="fas fa-sign-out-alt mr-3"></i> Logout
                     </a>
                 </li>
@@ -275,7 +504,7 @@
         <header class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">MERALCO Certification Generator</h1>
             <div class="flex items-center gap-2">
-                <img src="\UDHO%20SYSTEM\assets\UDHOLOGO.png" alt="Logo" class="h-8">
+                <img src="/assets/UDHOLOGO.png" alt="Logo" class="h-8">
                 <span class="font-medium text-gray-700">Urban Development and Housing Office</span>
             </div>
         </header>
@@ -308,17 +537,26 @@
                 </div>
             </div>
             
-            <div class="mt-6 flex justify-end space-x-3">
-                <button onclick="showWarningModal()" 
-                        class="px-6 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition flex items-center">
-                    <i class="fas fa-database mr-2"></i> View Applicants Database
-                </button>
-                <button onclick="generateCertificate()" 
-                        class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition flex items-center">
-                    <i class="fas fa-file-certificate mr-2"></i> Generate Certificate
-                </button>
-            </div>
-        </div>
+                        <!-- Add this div for verification status -->
+                    <div id="verificationStatus" class="hidden">
+                        <div class="flex items-center gap-2 text-sm">
+                            <span id="certificateCount" class="font-semibold">0</span>
+                            <span>certificates previously issued to this applicant</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-between">
+                    <button onclick="verifyApplicant()" 
+                            class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                        <i class="fas fa-search mr-2"></i> Verify Applicant
+                    </button>
+                    
+                    <button onclick="generateCertificate()" 
+                            class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-file-certificate mr-2"></i> Generate Certificate
+                    </button>
+                </div>
         
         <!-- Instructions Section -->
         <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
@@ -339,9 +577,9 @@
     <div id="certificateOutput" class="certificate">
         <div class="header-container">
             <div class="logo-container">
-                <img src="\UDHO%20SYSTEM\assets\PILIPINASLOGO.png" alt="Pasay Logo" class="logo">
-                <img src="\UDHO%20SYSTEM\assets\PASAYLOGO.png" alt="Bagong Pilipinas" class="logo">
-                <img src="\UDHO%20SYSTEM\assets\UDHOLOGO.png" alt="UDHO Logo" class="logo">
+                <img src="/assets/PILIPINASLOGO.png" alt="Pasay Logo" class="logo">
+                <img src="/assets/PASAYLOGO.png" alt="Bagong Pilipinas" class="logo">
+                <img src="/assets/UDHOLOGO.png" alt="UDHO Logo" class="logo">
             </div>
             <div class="header-text">
                 <p>Republika ng Pilipinas<br>
@@ -445,115 +683,106 @@
         </div>
     </div>
     
-    <!-- Warning Modal -->
-    <div id="warningModal" class="modal">
-        <div class="modal-content warning-modal">
-            <span class="close" onclick="closeWarningModal()">&times;</span>
-            <div class="flex items-center mb-4">
-                <i class="fas fa-exclamation-triangle warning-icon mr-3"></i>
-                <h2 class="text-2xl font-bold text-gray-800">Warning: Sensitive Data Access</h2>
-            </div>
-            <p class="mb-4">You are about to access the MERALCO applicants database which contains sensitive personal information.</p>
-            <p class="mb-4"><strong>Please ensure you have proper authorization before proceeding.</strong></p>
-            <p class="mb-4">The database will open in <span id="countdown" class="countdown">5</span> seconds.</p>
-            <div class="modal-buttons mt-6 space-x-3">
-                <button onclick="closeWarningModal()" 
-                        class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                    <i class="fas fa-ban mr-2"></i> Cancel
-                </button>
-                <button onclick="proceedToDatabase()" 
-                        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <i class="fas fa-check mr-2"></i> I Understand, Proceed
-                </button>
+    <!-- Error Modal for missing fields -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content error-modal">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle error-icon mr-3"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Missing Required Fields</h3>
+                    <p id="errorMessage" class="text-gray-700">Please fill in all required fields before generating the certificate.</p>
+                    <div class="modal-buttons mt-4">
+                        <button onclick="closeErrorModal()" 
+                                class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                            <i class="fas fa-times mr-2"></i> Close
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
-    <!-- Database Modal -->
-    <div id="databaseModal" class="modal">
-        <div class="modal-content" style="max-width: 90%;">
-            <span class="close" onclick="closeDatabaseModal()">&times;</span>
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">MERALCO Applicants Database</h2>
-            <div class="mb-4 flex justify-between">
-                <div>
-                    <input type="text" id="searchDatabase" placeholder="Search applicants..." 
-                           class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
-                </div>
-                <div>
-                    <button onclick="checkDuplicates()" 
-                            class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition flex items-center">
-                        <i class="fas fa-search mr-2"></i> Check for Duplicates
-                    </button>
-                </div>
-            </div>
-            <div style="max-height: 60vh; overflow-y: auto;">
-                <table class="applicant-table">
-                    <thead>
-                        <tr>
-                            <th>Control No.</th>
-                            <th>Name</th>
-                            <th>Address</th>
-                            <th>Date Issued</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="databaseBody">
-                        <tr>
-                            <td>2023-001</td>
-                            <td>JUAN DELA CRUZ</td>
-                            <td>123 Main Street, Pasay City</td>
-                            <td>2023-06-15</td>
-                            <td>Approved</td>
-                            <td>
-                                <button class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2023-002</td>
-                            <td>MARIA SANTOS</td>
-                            <td>456 Oak Avenue, Pasay City</td>
-                            <td>2023-06-16</td>
-                            <td>Pending</td>
-                            <td>
-                                <button class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            </td>
-                        </tr>
-                        <tr class="duplicate-applicant">
-                            <td>2023-003</td>
-                            <td>JUAN DELA CRUZ</td>
-                            <td>123 Main Street, Pasay City</td>
-                            <td>2023-07-01</td>
-                            <td>Duplicate</td>
-                            <td>
-                                <button class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2023-004</td>
-                            <td>PEDRO REYES</td>
-                            <td>789 Pine Road, Pasay City</td>
-                            <td>2023-07-05</td>
-                            <td>Approved</td>
-                            <td>
-                                <button class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-buttons mt-6">
-                <button onclick="closeDatabaseModal()" 
-                        class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                    <i class="fas fa-times mr-2"></i> Close Database
-                </button>
-            </div>
+    <!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="modal">
+    <div class="modal-content bg-white rounded-lg shadow-xl max-w-md mx-auto p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-800">Confirm Logout</h3>
+            <span class="close-modal text-gray-500 hover:text-gray-700 cursor-pointer text-2xl">&times;</span>
+        </div>
+        <div class="mb-6">
+            <p class="text-gray-700">Are you sure you want to logout?</p>
+        </div>
+        <div class="flex justify-end space-x-3">
+            <button id="cancelLogout" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition">
+                Cancel
+            </button>
+            <button id="confirmLogout" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
+                Logout
+            </button>
         </div>
     </div>
+</div>
 
+<!-- Add this modal before your existing scripts -->
+<div id="applicantHistoryModal" class="modal">
+    <div class="modal-content bg-white rounded-lg shadow-xl max-w-2xl mx-auto p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-gray-800">Applicant Verification</h3>
+            <span class="close-modal text-gray-500 hover:text-gray-700 cursor-pointer text-2xl" 
+                  onclick="closeApplicantHistoryModal()">&times;</span>
+        </div>
+        
+        <div class="mb-4">
+            <h4 class="font-medium text-gray-700" id="applicantName"></h4>
+            <p class="text-sm text-gray-600" id="applicantAddress"></p>
+            <p class="mt-2 font-medium" id="certificateCountBadge"></p>
+        </div>
+        
+        <div class="border rounded-lg overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-4 py-2 text-left">Control Number</th>
+                        <th class="px-4 py-2 text-left">Date Issued</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody" class="divide-y divide-gray-200">
+                    <!-- History will be populated here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="mt-6 flex justify-end">
+            <button onclick="closeApplicantHistoryModal()" 
+                    class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <i class="fas fa-times mr-2"></i> Close
+            </button>
+        </div>
+    </div>
+</div>
+    
+    <!-- Database Modal -->
+    <!-- Add these before your existing scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         // Set current year in the form
         document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        const { jsPDF } = window.jspdf;
+        
+        // Show error modal
+        function showErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').style.display = 'block';
+        }
+        
+        // Close error modal
+        function closeErrorModal() {
+            document.getElementById('errorModal').style.display = 'none';
+        }
         
         // Generate certificate function
         function generateCertificate() {
@@ -562,8 +791,22 @@
             const controlNumberSuffix = document.getElementById('controlNumber').value;
             const currentYear = new Date().getFullYear();
             
-            if (!name || !address || !controlNumberSuffix) {
-                alert('Please fill in all fields');
+            // Validate required fields
+            if (!name) {
+                showErrorModal('Please enter the full name of the applicant');
+                document.getElementById('name').focus();
+                return;
+            }
+            
+            if (!address) {
+                showErrorModal('Please enter the complete address of the applicant');
+                document.getElementById('address').focus();
+                return;
+            }
+            
+            if (!controlNumberSuffix) {
+                showErrorModal('Please enter the control number suffix');
+                document.getElementById('controlNumber').focus();
                 return;
             }
             
@@ -617,132 +860,6 @@
             document.getElementById('previewModal').style.display = 'none';
         }
         
-        // Show warning modal
-        function showWarningModal() {
-            const modal = document.getElementById('warningModal');
-            modal.style.display = 'block';
-            
-            // Start countdown
-            let seconds = 5;
-            const countdownElement = document.getElementById('countdown');
-            countdownElement.textContent = seconds;
-            
-            const countdownInterval = setInterval(() => {
-                seconds--;
-                countdownElement.textContent = seconds;
-                
-                if (seconds <= 0) {
-                    clearInterval(countdownInterval);
-                    proceedToDatabase();
-                }
-            }, 1000);
-            
-            // Store interval to clear if user cancels
-            modal.dataset.countdownInterval = countdownInterval;
-        }
-        
-        // Close warning modal
-        function closeWarningModal() {
-            const modal = document.getElementById('warningModal');
-            clearInterval(modal.dataset.countdownInterval);
-            modal.style.display = 'none';
-        }
-        
-        // Proceed to database after warning
-        function proceedToDatabase() {
-            closeWarningModal();
-            const modal = document.getElementById('databaseModal');
-            modal.style.display = 'block';
-        }
-        
-        // Close database modal
-        function closeDatabaseModal() {
-            document.getElementById('databaseModal').style.display = 'none';
-        }
-        
-        // Check for duplicates in the database
-        function checkDuplicates() {
-            const name = document.getElementById('name').value.toUpperCase();
-            const address = document.getElementById('address').value;
-            
-            if (!name && !address) {
-                alert('Please enter name and address to check for duplicates');
-                return;
-            }
-            
-            // In a real app, this would query a database
-            // For demo, we'll just highlight existing matches in the sample data
-            const rows = document.querySelectorAll('#databaseBody tr');
-            let foundDuplicate = false;
-            
-            rows.forEach(row => {
-                const rowName = row.cells[1].textContent;
-                const rowAddress = row.cells[2].textContent;
-                
-                if ((name && rowName.includes(name)) || (address && rowAddress.includes(address))) {
-                    row.classList.add('duplicate-applicant');
-                    foundDuplicate = true;
-                } else {
-                    row.classList.remove('duplicate-applicant');
-                }
-            });
-            
-            if (foundDuplicate) {
-                alert('Potential duplicates found! Highlighted in red.');
-            } else {
-                alert('No duplicates found for this applicant.');
-            }
-        }
-        
-        // Save certificate data to database
-        function saveToDatabase() {
-            const name = document.getElementById('name').value;
-            const address = document.getElementById('address').value;
-            const controlNumber = document.getElementById('controlNumber').value;
-            const currentYear = new Date().getFullYear();
-            const fullControlNumber = `${currentYear}-${controlNumber}`;
-            const issueDate = new Date().toISOString().split('T')[0];
-            
-            // In a real application, you would send this data to your backend
-            // Here we'll just simulate it and show a success message
-            
-            // Simulate AJAX call
-            setTimeout(() => {
-                showSaveSuccess();
-                
-                // In a real app, you would add the new record to the database table
-                // For demo purposes, we'll just add it to the visible table
-                const tableBody = document.getElementById('databaseBody');
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td>${fullControlNumber}</td>
-                    <td>${name.toUpperCase()}</td>
-                    <td>${address}</td>
-                    <td>${issueDate}</td>
-                    <td>Approved</td>
-                    <td>
-                        <button class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                    </td>
-                `;
-                tableBody.prepend(newRow);
-            }, 1000);
-        }
-        
-        // Show save success message
-        function showSaveSuccess() {
-            const popup = document.getElementById('saveWarning');
-            popup.style.display = 'block';
-            
-            // Hide after 5 seconds
-            setTimeout(() => {
-                popup.classList.add('fade-out');
-                setTimeout(() => {
-                    popup.style.display = 'none';
-                    popup.classList.remove('fade-out');
-                }, 500);
-            }, 5000);
-        }
-        
         // Print certificate with logo fixes
         function printCertificate() {
             const certificate = document.getElementById('certificateOutput').cloneNode(true);
@@ -751,9 +868,9 @@
 
             // Update image paths to absolute URLs
             const logos = certificate.querySelectorAll('.logo');
-            logos[0].src = window.location.origin + '/UDHO%20SYSTEM/assets/PILIPINASLOGO.png';
-            logos[1].src = window.location.origin + '/UDHO%20SYSTEM/assets/PASAYLOGO.png';
-            logos[2].src = window.location.origin + '/UDHO%20SYSTEM/assets/UDHOLOGO.png';
+            logos[0].src = window.location.origin + '/assets/PILIPINASLOGO.png';
+            logos[1].src = window.location.origin + '/assets/PASAYLOGO.png';
+            logos[2].src = window.location.origin + '/assets/UDHOLOGO.png';
 
             const printWindow = window.open('', '', 'width=800,height=600');
             printWindow.document.open();
@@ -877,37 +994,304 @@
         }
         
         // Save as PDF (simulated - in a real implementation you would use a PDF library)
-        function saveAsPDF() {
-            printCertificate();
+        // Initialize jsPDF
+     
+                // Save as PDF using html2canvas and jsPDF
+async function saveAsPDF() {
+    const element = document.getElementById('certificateOutput');
+    const saveBtn = document.querySelector('button[onclick="saveAsPDF()"]');
+    let originalText = '';
+    
+    try {
+        // Store original button state
+        if (saveBtn) {
+            originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Generating PDF...';
+            saveBtn.disabled = true;
         }
-        
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            const modals = ['previewModal', 'warningModal', 'databaseModal'];
-            modals.forEach(modalId => {
-                const modal = document.getElementById(modalId);
-                if (event.target == modal) {
-                    if (modalId === 'warningModal') {
-                        closeWarningModal();
-                    } else if (modalId === 'databaseModal') {
-                        closeDatabaseModal();
-                    } else {
-                        closeModal();
-                    }
-                }
-            });
-        }
-        
-        // Search functionality for database
-        document.getElementById('searchDatabase').addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const rows = document.querySelectorAll('#databaseBody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
+
+        // Create a hidden container for processing
+        const hiddenContainer = document.createElement('div');
+        hiddenContainer.style.position = 'fixed';
+        hiddenContainer.style.left = '-9999px';
+        hiddenContainer.style.top = '0';
+        hiddenContainer.style.width = '8.5in';
+        hiddenContainer.style.height = '14in';
+        document.body.appendChild(hiddenContainer);
+
+        // Clone the certificate and add to hidden container
+        const clone = element.cloneNode(true);
+        clone.style.display = 'block';
+        clone.style.visibility = 'visible';
+        clone.style.position = 'relative';
+        clone.style.left = '0';
+        clone.style.width = '100%';
+        clone.style.height = '100%';
+        hiddenContainer.appendChild(clone);
+
+        // Wait for images to load
+        await loadAllImages(clone);
+
+        // Generate canvas with proper dimensions
+        const canvas = await html2canvas(clone, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#FFFFFF',
+            logging: false,
+            width: 850,  // 8.5in * 100dpi
+            height: 1400, // 14in * 100dpi
+            windowWidth: 850,
+            windowHeight: 1400
         });
+
+        // Remove the hidden container
+        document.body.removeChild(hiddenContainer);
+
+        // Create PDF with correct dimensions
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'in',
+            format: [8.5, 14]
+        });
+
+        // Add image to PDF with proper scaling
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 0, 0, 8.5, 14);
+
+        // Generate filename
+        const name = document.getElementById('name').value.replace(/\s+/g, '_');
+        const controlNumber = document.getElementById('outputControlNumber').textContent;
+        const filename = `MERALCO_Certificate_${name}_${controlNumber}.pdf`;
+
+        // Save PDF directly
+        pdf.save(filename);
+
+    } catch (error) {
+        console.error('PDF generation failed:', error);
+        showErrorModal('PDF generation failed. Please try again or use the print option.');
+    } finally {
+        // Restore button state
+        if (saveBtn) {
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+        }
+    }
+}
+
+// Helper function to ensure all images are loaded
+        function loadAllImages(element) {
+            const images = element.getElementsByTagName('img');
+            const promises = [];
+            
+            for (let img of images) {
+                if (!img.complete) {
+                    promises.push(new Promise((resolve) => {
+                        img.onload = resolve;
+                        img.onerror = resolve; // Continue even if some images fail
+                    }));
+                }
+            }
+            
+            return Promise.all(promises);
+        }
+                // Save to database
+        function saveToDatabase() {
+            const name = document.getElementById('name').value;
+            const address = document.getElementById('address').value;
+            const currentYear = new Date().getFullYear();
+            const controlNumberSuffix = document.getElementById('controlNumber').value;
+            const controlNumber = `${currentYear}-${controlNumberSuffix}`;
+
+            // Check for duplicates first
+            fetch(`?check_duplicate=1&control_number=${controlNumber}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        showErrorModal('This control number already exists in the database. Please use a different number.');
+                        return;
+                    }
+
+                    // Proceed with saving
+                    const formData = new FormData();
+                    formData.append('action', 'save_certificate');
+                    formData.append('name', name);
+                    formData.append('address', address);
+                    formData.append('control_number', controlNumber);
+
+                    return fetch('', {
+                        method: 'POST',
+                        body: formData
+                    });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSaveSuccess('Certificate data saved to database!');
+                    } else {
+                        showErrorModal(data.message || 'Error saving certificate to database');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showErrorModal('An error occurred while saving to database');
+                });
+        }
+
+        // Show save success message
+        function showSaveSuccess(message) {
+            const popup = document.getElementById('saveWarning');
+            const messageSpan = document.getElementById('saveMessage');
+            
+            messageSpan.textContent = message;
+            popup.style.display = 'block';
+            
+            setTimeout(() => {
+                popup.classList.add('fade-out');
+                setTimeout(() => {
+                    popup.style.display = 'none';
+                    popup.classList.remove('fade-out');
+                }, 500);
+            }, 3000);
+        }
+        // Logout functionality
+        // Logout Modal Functionality
+        const logoutBtn = document.getElementById('logoutBtn');
+        const logoutModal = document.getElementById('logoutModal');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const cancelLogoutBtn = document.getElementById('cancelLogout');
+        const confirmLogoutBtn = document.getElementById('confirmLogout');
+        
+        // Open modal when logout button is clicked
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            logoutModal.classList.add('show');
+        });
+        
+        // Close modal when X is clicked
+        closeModalBtn.addEventListener('click', function() {
+            logoutModal.classList.remove('show');
+        });
+        
+        // Close modal when Cancel is clicked
+        cancelLogoutBtn.addEventListener('click', function() {
+            logoutModal.classList.remove('show');
+        });
+        
+        // Handle logout confirmation
+        confirmLogoutBtn.addEventListener('click', function() {
+            // Create a form to submit the logout request
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/logout.php';
+            
+            // Submit the form
+            document.body.appendChild(form);
+            form.submit();
+        });
+        
+        // Close modal when clicking outside the modal content
+        window.addEventListener('click', function(e) {
+            if (e.target === logoutModal) {
+                logoutModal.classList.remove('show');
+            }
+        });
+        
+        confirmLogoutBtn.addEventListener('click', function() {
+            // Show loading spinner
+            confirmLogoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Logging out...';
+            confirmLogoutBtn.disabled = true;
+            
+            setTimeout(() => {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/logout.php';
+                document.body.appendChild(form);
+                form.submit();
+            }, 500); // Small delay to show the spinner
+        });
+        
+                document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && logoutModal.classList.contains('show')) {
+                logoutModal.classList.remove('show');
+            }
+        });
+        
+        // Add these functions to your existing JavaScript
+
+// Verify applicant function
+    function verifyApplicant() {
+        const name = document.getElementById('name').value;
+        
+        
+        if (!name) {
+            showErrorModal('Please enter Full Name to verify');
+            return;
+        }
+        
+        const verifyBtn = document.querySelector('button[onclick="verifyApplicant()"]');
+        const originalText = verifyBtn.innerHTML;
+        verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Verifying...';
+        verifyBtn.disabled = true;
+        
+        fetch(`?verify_applicant=1&name=${encodeURIComponent(name)}&address=${encodeURIComponent(address)}`)
+            .then(response => response.json())
+            .then(data => {
+                // Update verification status
+                document.getElementById('verificationStatus').classList.remove('hidden');
+                document.getElementById('certificateCount').textContent = data.count;
+                
+                // Show detailed history in modal
+                showApplicantHistory(name, address, data);
+            })
+            .catch(error => {
+                console.error('Verification failed:', error);
+                showErrorModal('Verification failed. Please try again.');
+            })
+            .finally(() => {
+                verifyBtn.innerHTML = originalText;
+                verifyBtn.disabled = false;
+            });
+    }
+
+// Show applicant history modal
+function showApplicantHistory(name, address, data) {
+    document.getElementById('applicantName').textContent = name;
+
+    
+    const countBadge = document.getElementById('certificateCountBadge');
+    if (data.count > 0) {
+        countBadge.innerHTML = `<span class="px-2 py-1 rounded-full ${data.count > 1 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+            ${data.count} certificate(s) found
+        </span>`;
+    } else {
+        countBadge.innerHTML = '<span class="px-2 py-1 rounded-full bg-blue-100 text-blue-800">No previous certificates found</span>';
+    }
+    
+    const tbody = document.getElementById('historyTableBody');
+    tbody.innerHTML = '';
+    
+    if (data.count > 0) {
+        data.history.forEach(cert => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="px-4 py-2">${cert.control_number}</td>
+                <td class="px-4 py-2">${cert.date_issued}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    } else {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="2" class="px-4 py-2 text-center text-gray-500">No previous certificates found for this applicant</td>';
+        tbody.appendChild(row);
+    }
+    
+    document.getElementById('applicantHistoryModal').style.display = 'block';
+}
+
+// Close applicant history modal
+function closeApplicantHistoryModal() {
+    document.getElementById('applicantHistoryModal').style.display = 'none';
+}
     </script>
 </body>
 </html>
